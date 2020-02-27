@@ -120,6 +120,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             event.accept()
         else:
             event.ignore()
+            
+    def notify(self, message):
+        self.statusbar.showMessage(message, 4000)
 
 ############# TIMER MANAGER #############
     def add10(self):

@@ -7,7 +7,7 @@ import time
 import random
 from threading import Thread
 
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import default_gpio as PIN
 import MAX6675.MAX6675 as MAX6675
 import Adafruit_BMP.BMP085 as BMP085
@@ -17,17 +17,29 @@ class SensReader(Thread):
         super(SensReader, self).__init__()
         self.controller = controller
 
-        # ovenThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS1, PIN.SO1)
-        # floorThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS2, PIN.SO2)
-        # pufferThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS3, PIN.SO3)
-        # fumesThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS4, PIN.SO4)
+        self.ovenThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS1, PIN.SO1)
+        self.floorThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS2, PIN.SO2)
+        self.pufferThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS3, PIN.SO3)
+        self.fumesThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS4, PIN.SO4)
+        self.pressionSensor = BMP085.BMP085()
 
     def run(self):
+        sum = 0
+        #self.controller.notify("Avviamento procedura di calibrazione pressione")
+        for i in range(10):
+            sum += self.pressionSensor.read_pressure()
+            time.sleep(0.3)
+        
+        mean = sum // 10
+
         while True:
-            # ovenTemp = ovenThermocouple.readTempC()
-            # floorTemp = floorThermocouple.readTempC()
-            # pufferTemp = pufferThermocouple.readTempC()
-            # fumesTemp = fumesThermocouple.readTempC()
+            ovenTemp = self.ovenThermocouple.readTempC()
+            floorTemp = self.floorThermocouple.readTempC()
+            pufferTemp = self.pufferThermocouple.readTempC()
+            fumesTemp = self.fumesThermocouple.readTempC()
+            pression = self.pressionSensor.read_pressure()
+            
+            delta = pression - mean
 
             # DB signature
             # TABLE OvenTemperatures(timestamp DATETIME, temp NUMERIC)
@@ -48,5 +60,5 @@ class SensReader(Thread):
             #     con.commit()
             # con.close()
 
-            # self.controller.setData(ovenTemp, floorTemp, pufferTemp, fumesTemp)
+            self.controller.setData(ovenTemp, floorTemp, pufferTemp, fumesTemp, delta)
             time.sleep(3)

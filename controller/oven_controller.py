@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # coding: utf8
 
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 from .sens_reader import SensReader
 
 class OvenController(object):
@@ -12,13 +12,14 @@ class OvenController(object):
         self.__floorTemp = 0
         self.__pufferTemp = 0
         self.__fumesTemp = 0
+        self.__deltaPression = 0
 
         # initialize Relay GPIO
-        # GPIO.setmode(GPIO.BCM)
-        # gpioList = [4, 17, 18, 27, 22, 23, 24, 25]
-        # for i in gpioList:
-        #     GPIO.setup(i, GPIO.OUT)
-        #     GPIO.output(i, GPIO.HIGH)
+        #GPIO.setmode(GPIO.BCM)
+        #gpioList = [4, 17, 18, 27, 22, 23, 24, 25]
+        #for i in gpioList:
+        #    GPIO.setup(i, GPIO.OUT)
+        #    GPIO.output(i, GPIO.HIGH)
 
         #definire Pool
         self.sensReader = SensReader(controller = self)
@@ -28,7 +29,7 @@ class OvenController(object):
     def getOvenTemp(self):
         return self.__ovenTemp
 
-    def setData(self, ovenTemp, floorTemp, pufferTemp, fumesTemp):  #add feedback on failure?
+    def setData(self, ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression):  #add feedback on failure?
         if ovenTemp is not None:
             self.__ovenTemp = ovenTemp
             self.ui.ovenLCD.display(self.__ovenTemp)
@@ -44,4 +45,11 @@ class OvenController(object):
         if fumesTemp is not None:
             self.__fumesTemp = fumesTemp
             self.ui.fumesLCD.display(self.__fumesTemp)
+            
+        if deltaPression is not None:
+            self.__deltaPression = deltaPression
+            self.ui.pressureLCD.display(self.__deltaPression)
+            
+    def notify(self, message):
+        self.ui.notify(message)
 
