@@ -1,0 +1,19 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource>
+        <file>src/quit.png</file>
+        <file>src/fire.gif</file>
+        <file>src/thermostatDown.png</file>
+        <file>src/thermostatUp.png</file>
+        <file>src/lightOff.png</file>
+        <file>src/lightOn.png</file>
+        <file>src/alexaOn.png</file>
+        <file>src/alexaOff.png</file>
+        <file>src/steam.png</file>
+        <file>src/openingOpen.png</file>
+        <file>src/openingClose.png</file>
+        <file>src/fan.gif</file>
+        <file>src/plus.png</file>
+        <file>src/minus.png</file>
+        <file>src/OnOff.png</file>
+    </qresource>
+</RCC>

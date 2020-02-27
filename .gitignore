@@ -1,0 +1,7 @@
+__pycache__
+ui/__pycache__
+controller/__pycache__
+.idea
+Files
+initializeDB.py
+oven.db
