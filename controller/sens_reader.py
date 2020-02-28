@@ -2,9 +2,7 @@
 # coding: utf8
 
 import sqlite3
-import sys
 import time
-import random
 from threading import Thread
 
 import default_gpio as PIN
@@ -53,7 +51,7 @@ class SensReader(Thread):
             # TABLE OvenPression(timestamp DATETIME, pression NUMERIC)
 
 
-            # con = sqlite3.connect('primoDB.db')
+            # con = sqlite3.connect('oven.db')
             # with con:
             #     cur = con.cursor()
                 

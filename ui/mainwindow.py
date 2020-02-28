@@ -27,13 +27,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.fireMovie.setScaledSize(QtCore.QSize(160, 160))
         self.burnerLabel.setMovie(self.fireMovie)
         self.burnerLabel.hide()
-
+        
         self.connectActions()
 
     def connectActions(self):
         """
         Manage buttons' action
-        """
+        """        
         self.horizontalSlider.valueChanged['int'].connect(self.thermostatLCD.display)
 
         self.burnerButton.clicked.connect(self.toggleBurner)
@@ -76,26 +76,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.fireMovie.start()
             self.burnerLabel.show()
 
-    def toggleLight(self):  # TODO
+    def toggleLight(self):
         self.controller.toggleLight()
 
-    def toggleSteam(self):  # TODO
+    def toggleSteam(self):
         self.controller.toggleSteam()
 
     def updateFanButton(self):
         self.fanButton.setIcon(QtGui.QIcon(self.fanMovie.currentPixmap()))
 
-    def toggleFan(self):  # TODO
+    def toggleFan(self):
         self.controller.toggleBurnerFan()
         if self.fanMovie.state():
             self.fanMovie.stop()
         else:
             self.fanMovie.start()
 
-    def toggleInternalOpening(self):    # TODO
+    def toggleInternalOpening(self):
         self.controller.toggleInternalOpening()
 
-    def toggleExternalOpening(self):    # TODO
+    def toggleExternalOpening(self):
         self.controller.toggleExternalOpening()
 
     def toggleAlexa(self):  # TODO future feature
@@ -120,7 +120,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             event.ignore()
             
-    def notify(self, message):
+    def notify(self, message):# TODO
         self.statusbar.showMessage(message, 4000)
 
 ############# TIMER MANAGER #############
@@ -149,6 +149,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.updateLCD()
         else:
             self.timer.stop()
+            self.controller.playAudio()
 
     def reset(self):
         self.timer.stop()

@@ -14,5 +14,5 @@ if __name__ == "__main__":
     app.setStyleSheet(ss)
 
     w = MainWindow()
-    w.showFullScreen()
+    w.show()
     sys.exit(app.exec_())

@@ -2,8 +2,14 @@
 # coding: utf8
 
 import RPi.GPIO as GPIO
-from .sens_reader import SensReader
 import default_gpio as PIN
+import subprocess
+
+from .sens_reader import SensReader
+from .rpi_fan import FanController
+from .internal_opening_controller import InternalOpeningController
+
+AUDIO_PATH = 'src/audio.mp3'
 
 class OvenController(object):
     def __init__(self, ui):
@@ -18,7 +24,6 @@ class OvenController(object):
         self.__light = False
         self.__steam = False
         self.__burnerFan = False
-        self.__internalOpening = False
         self.__externalOpening = False
 
         # initialize Relay GPIO
@@ -30,10 +35,19 @@ class OvenController(object):
             GPIO.setup(i, GPIO.OUT)
             GPIO.output(i, GPIO.HIGH)
 
-        #definire Pool
-        self.sensReader = SensReader(controller = self)
-        #self.sensReader.daemon = True
-        self.sensReader.start()
+        # threads
+        self.__threads = []
+        
+        self.__sensReader = SensReader(controller = self)
+        self.__sensReader.start()
+        self.__threads.append(self.__sensReader)
+        
+        self.__fanController = FanController()
+        self.__fanController.start()
+        self.__threads.append(self.__fanController)
+        
+        #self.__internalOpeningController = InternalOpeningController()
+        #self.__internalOpeningController.daemon = True
 
     def getOvenTemp(self):
         return self.__ovenTemp
@@ -85,12 +99,10 @@ class OvenController(object):
             GPIO.output(PIN.RELAY3_BURNER_FAN, GPIO.HIGH)
             
     def toggleInternalOpening(self):
-        self.__internalOpening = not self.__internalOpening
-        
-        if self.__internalOpening:
-            GPIO.output(PIN.RELAY6_INT_OPENING, GPIO.LOW)
-        else:
-            GPIO.output(PIN.RELAY6_INT_OPENING, GPIO.HIGH)
+        self.manageIntOpeningButton(False)
+        internalOpeningController = InternalOpeningController(self)
+        internalOpeningController.start()
+        self.__threads.append(internalOpeningController)
     
     def toggleExternalOpening(self):
         self.__externalOpening = not self.__externalOpening
@@ -99,11 +111,23 @@ class OvenController(object):
             GPIO.output(PIN.RELAY7_EST_OPENING, GPIO.LOW)
         else:
             GPIO.output(PIN.RELAY7_EST_OPENING, GPIO.HIGH)
-            
-    def notify(self, message):
+    
+    def manageIntOpeningButton(self, state):
+        self.ui.internalOpeningButton.setEnabled(state)
+        
+    def playAudio(self):
+        # assumes that audio reproduction finishes before app exit
+        subprocess.Popen(['mpg321', AUDIO_PATH])
+        
+    def notify(self, message): # TODO
         self.ui.notify(message)
         
     def close(self):
-        self.sensReader.kill()
+        self.__sensReader.kill()
+        self.__fanController.kill()
+            
+        for thread in self.__threads:
+            thread.join()
+            
         GPIO.cleanup()
 
