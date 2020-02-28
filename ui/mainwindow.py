@@ -10,7 +10,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, **kwargs):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
-        self.ovenController = OvenController(self)  # set controller
+        self.controller = OvenController(self)  # set controller
 
         self.timerSeconds = 0
         self.timer = QtCore.QTimer()
@@ -40,8 +40,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.lightButton.clicked.connect(self.toggleLight)
 
-        self.steamButton.pressed.connect(self.steamOn)
-        self.steamButton.released.connect(self.steamOff)
+        self.steamButton.pressed.connect(self.toggleSteam)
+        self.steamButton.released.connect(self.toggleSteam)
 
         self.fanMovie.frameChanged.connect(self.updateFanButton)
         self.fanMovie.start()
@@ -77,28 +77,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.burnerLabel.show()
 
     def toggleLight(self):  # TODO
-        pass
+        self.controller.toggleLight()
 
-    def steamOn(self):  # TODO
-        pass
-
-    def steamOff(self):  # TODO
-        pass
+    def toggleSteam(self):  # TODO
+        self.controller.toggleSteam()
 
     def updateFanButton(self):
         self.fanButton.setIcon(QtGui.QIcon(self.fanMovie.currentPixmap()))
 
     def toggleFan(self):  # TODO
+        self.controller.toggleBurnerFan()
         if self.fanMovie.state():
             self.fanMovie.stop()
         else:
             self.fanMovie.start()
 
     def toggleInternalOpening(self):    # TODO
-        pass
+        self.controller.toggleInternalOpening()
 
     def toggleExternalOpening(self):    # TODO
-        pass
+        self.controller.toggleExternalOpening()
 
     def toggleAlexa(self):  # TODO future feature
         pass
@@ -117,6 +115,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         reply = QtWidgets.QMessageBox.question(self, 'Chiudi', "Sei sicuro di chiudere l'applicazione?", 
         QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
         if reply == QtWidgets.QMessageBox.Yes:
+            self.controller.close()
             event.accept()
         else:
             event.ignore()

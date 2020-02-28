@@ -7,7 +7,6 @@ import time
 import random
 from threading import Thread
 
-import RPi.GPIO as GPIO
 import default_gpio as PIN
 import MAX6675.MAX6675 as MAX6675
 import Adafruit_BMP.BMP085 as BMP085
@@ -22,7 +21,12 @@ class SensReader(Thread):
         self.pufferThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS3, PIN.SO3)
         self.fumesThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS4, PIN.SO4)
         self.pressionSensor = BMP085.BMP085()
+        
+        self.stop = False
 
+    def kill(self):
+        self.stop = True
+        
     def run(self):
         sum = 0
         #self.controller.notify("Avviamento procedura di calibrazione pressione")
@@ -32,7 +36,7 @@ class SensReader(Thread):
         
         mean = sum // 10
 
-        while True:
+        while not self.stop:
             ovenTemp = self.ovenThermocouple.readTempC()
             floorTemp = self.floorThermocouple.readTempC()
             pufferTemp = self.pufferThermocouple.readTempC()
