@@ -1,12 +1,19 @@
 #!/usr/bin/python3
-# coding: utf8
+# -*- coding: utf-8 -*-
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from .oven_ui import Ui_MainWindow
 from controller.oven_controller import OvenController
 import math
 
+THERMOSTAT_LOWER_THRESHOLD = 100
+THERMOSTAT_UPPER_THRESHOLD = 550
+
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+        
+    notifySignal = pyqtSignal(str, int)
+    
     def __init__(self, *args, **kwargs):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
@@ -29,13 +36,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.burnerLabel.hide()
         
         self.connectActions()
-
+        
+    @pyqtSlot(str, int)
+    def notifySlot(self, message, time):
+        self.notify(message, time)
+        
     def connectActions(self):
         """
         Manage buttons' action
-        """        
-        self.horizontalSlider.valueChanged['int'].connect(self.thermostatLCD.display)
-
+        """
+        self.notifySignal.connect(self.notifySlot)
+        
         self.burnerButton.clicked.connect(self.toggleBurner)
 
         self.lightButton.clicked.connect(self.toggleLight)
@@ -54,6 +65,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.externalOpeningButton.pressed.connect(self.toggleExternalOpening)
         self.externalOpeningButton.released.connect(self.toggleExternalOpening)
 
+        self.horizontalSlider.valueChanged['int'].connect(self.thermostatLCD.display)
+        self.horizontalSlider.sliderReleased.connect(self.setThermostatTemp)
         self.incrementThermostatButton.pressed.connect(self.incrementThermostat)
         self.decrementThermostatButton.pressed.connect(self.decrementThermostat)
 
@@ -101,15 +114,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def toggleAlexa(self):  # TODO future feature
         pass
 
-    def incrementThermostat(self):    # TODO
+    def setThermostatTemp(self):# TODO
+        value = self.thermostatLCD.value()
+        print(value)
+        self.controller.setThermostatValue(value)
+        
+    def incrementThermostat(self):
         value = self.horizontalSlider.value()
-        value = math.floor(value / 10) * 10 + 10
-        self.horizontalSlider.setValue(value)
+        
+        if value < THERMOSTAT_UPPER_THRESHOLD:
+            value = math.floor(value / 10) * 10 + 10
+            self.horizontalSlider.setValue(value)
+            self.setThermostatTemp()
 
-    def decrementThermostat(self):    # TODO
+    def decrementThermostat(self):
         value = self.horizontalSlider.value()
-        value = math.ceil(value / 10) * 10 - 10
-        self.horizontalSlider.setValue(value)
+        
+        if value > THERMOSTAT_LOWER_THRESHOLD:
+            value = math.ceil(value / 10) * 10 - 10
+            self.horizontalSlider.setValue(value)
+            self.setThermostatTemp()
 
     def closeEvent(self, event):    # TODO check errors
         reply = QtWidgets.QMessageBox.question(self, 'Chiudi', "Sei sicuro di chiudere l'applicazione?", 
@@ -120,8 +144,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             event.ignore()
             
-    def notify(self, message):# TODO
-        self.statusbar.showMessage(message, 4000)
+    def notify(self, message, time):
+        self.statusbar.showMessage(message, time)
 
 ############# TIMER MANAGER #############
     def add10(self):

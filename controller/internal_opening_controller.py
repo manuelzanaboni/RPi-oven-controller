@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# coding: utf8
+# -*- coding: utf-8 -*-
 
 import time
 from threading import Thread
@@ -18,6 +18,7 @@ class InternalOpeningController(Thread):
         self.stop = True
         
     def run(self):
+        self.controller.notify("Apertura interna azionata.", 3000)
         GPIO.output(PIN.RELAY6_INT_OPENING, GPIO.LOW)
         time.sleep(SLEEP_INTERVAL)
         GPIO.output(PIN.RELAY6_INT_OPENING, GPIO.HIGH)

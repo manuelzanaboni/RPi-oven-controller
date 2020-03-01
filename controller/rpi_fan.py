@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# coding: utf8
+# -*- coding: utf-8 -*-
 
 import time
 from threading import Thread
@@ -12,8 +12,9 @@ OFF_THRESHOLD = 40  # (degress Celsius) Fan shuts off at this temperature.
 SLEEP_INTERVAL = 5  # (seconds) How often we check the core temperature.
 
 class FanController(Thread):
-    def __init__(self):
+    def __init__(self, controller):
         super(FanController, self).__init__()
+        self.controller = controller
         self.stop = False
 
     def kill(self):
@@ -21,7 +22,7 @@ class FanController(Thread):
     
     def getTemp(self):
         """Get the core temperature.
-        Run a shell script to get the core temp and parse the output.
+        Run a shell script to get the core temperature and parse the output.
         Raises:
             RuntimeError: if response cannot be parsed.
         Returns:
@@ -42,7 +43,9 @@ class FanController(Thread):
 
             if temp > ON_THRESHOLD and pinState:
                 GPIO.output(PIN.RELAY8_RPI_FAN, GPIO.LOW)
+                self.controller.notify("Ventola di raffrescamento attivata.", 3000)
             elif not pinState and temp < OFF_THRESHOLD:
                 GPIO.output(PIN.RELAY8_RPI_FAN, GPIO.HIGH)
+                self.controller.notify("Ventola di raffrescamento disattivata.", 3000)
                 
             time.sleep(SLEEP_INTERVAL)

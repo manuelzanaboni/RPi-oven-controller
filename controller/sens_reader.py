@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# coding: utf8
+# -*- coding: utf-8 -*-
 
 import sqlite3
 import time
@@ -27,13 +27,14 @@ class SensReader(Thread):
         
     def run(self):
         sum = 0
-        #self.controller.notify("Avviamento procedura di calibrazione pressione")
-        for i in range(10):
+        self.controller.notify("Avviamento procedura di calibrazione pressione.", 2000)
+        for i in range(10): 
             sum += self.pressionSensor.read_pressure()
             time.sleep(0.3)
         
         mean = sum // 10
 
+        self.controller.notify("Avviamento ciclo di lettura sensori.", 4000)
         while not self.stop:
             ovenTemp = self.ovenThermocouple.readTempC()
             floorTemp = self.floorThermocouple.readTempC()
