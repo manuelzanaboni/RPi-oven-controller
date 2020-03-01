@@ -45,7 +45,8 @@ QSlider::sub-page:horizontal {
 QPushButton#lightButton:checked,
 QPushButton#internalOpeningButton:checked,
 QPushButton#externalOpeningButton:checked,
-QPushButton#alexaButton:checked {
+QPushButton#alexaButton:checked,
+QPushButton#burnerValveButton:checked {
 	background-color: rgba(255,255,255,0);
     border-radius: 10px;
 }

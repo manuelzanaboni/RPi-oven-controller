@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'interface.ui'
@@ -551,6 +550,19 @@ class Ui_MainWindow(object):
         self.burnerLabel.setGeometry(QtCore.QRect(570, 380, 54, 17))
         self.burnerLabel.setText("")
         self.burnerLabel.setObjectName("burnerLabel")
+        self.burnerValveButton = QtWidgets.QPushButton(self.centralwidget)
+        self.burnerValveButton.setGeometry(QtCore.QRect(820, 290, 88, 76))
+        self.burnerValveButton.setText("")
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(QtGui.QPixmap(":/src/burnerValveOff.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon10.addPixmap(QtGui.QPixmap(":/src/burnerValveOn.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.burnerValveButton.setIcon(icon10)
+        self.burnerValveButton.setIconSize(QtCore.QSize(70, 70))
+        self.burnerValveButton.setCheckable(True)
+        self.burnerValveButton.setAutoDefault(False)
+        self.burnerValveButton.setDefault(False)
+        self.burnerValveButton.setFlat(True)
+        self.burnerValveButton.setObjectName("burnerValveButton")
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -580,6 +592,7 @@ class Ui_MainWindow(object):
         self.resetTimerButton.setText(_translate("MainWindow", "Reset"))
         self.intLabel.setText(_translate("MainWindow", "INT"))
         self.estLabel.setText(_translate("MainWindow", "EST"))
+
 
 if __name__ == "__main__":
     import sys

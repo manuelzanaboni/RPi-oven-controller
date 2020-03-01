@@ -1258,6 +1258,42 @@
      <string/>
     </property>
    </widget>
+   <widget class="QPushButton" name="burnerValveButton">
+    <property name="geometry">
+     <rect>
+      <x>820</x>
+      <y>290</y>
+      <width>88</width>
+      <height>76</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="resources.qrc">
+      <normaloff>:/src/burnerValveOff.png</normaloff>
+      <normalon>:/src/burnerValveOn.png</normalon>:/src/burnerValveOff.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>70</width>
+      <height>70</height>
+     </size>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
