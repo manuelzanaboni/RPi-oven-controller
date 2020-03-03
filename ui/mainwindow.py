@@ -7,9 +7,6 @@ from .oven_ui import Ui_MainWindow
 from controller.oven_controller import OvenController
 import math
 
-THERMOSTAT_LOWER_THRESHOLD = 100
-THERMOSTAT_UPPER_THRESHOLD = 550
-
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     notifySignal = pyqtSignal(str, int)
@@ -122,7 +119,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def incrementThermostat(self):
         value = self.horizontalSlider.value()
         
-        if value < THERMOSTAT_UPPER_THRESHOLD:
+        if value < self.horizontalSlider.maximum():
             value = math.floor(value / 10) * 10 + 10
             self.horizontalSlider.setValue(value)
             self.setThermostatTemp()
@@ -130,7 +127,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def decrementThermostat(self):
         value = self.horizontalSlider.value()
         
-        if value > THERMOSTAT_LOWER_THRESHOLD:
+        if value > self.horizontalSlider.minimum():
             value = math.ceil(value / 10) * 10 - 10
             self.horizontalSlider.setValue(value)
             self.setThermostatTemp()
