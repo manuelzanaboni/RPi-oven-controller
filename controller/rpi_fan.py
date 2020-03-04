@@ -38,7 +38,7 @@ class FanController(Thread):
     def run(self):
         while not self.stop:
             temp = self.getTemp()
-            print("Fan controller: temp " + str(temp))
+            #print("Fan controller: temp " + str(temp))
             pinState = GPIO.input(PIN.RELAY8_RPI_FAN)
 
             if temp > ON_THRESHOLD and pinState:

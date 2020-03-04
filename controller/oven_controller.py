@@ -5,6 +5,7 @@ import RPi.GPIO as GPIO
 import default_gpio as PIN
 import subprocess
 
+from .burner_controller import BurnerController
 from .sens_reader import SensReader
 from .rpi_fan import FanController
 from .internal_opening_controller import InternalOpeningController
@@ -15,12 +16,16 @@ class OvenController(object):
     def __init__(self, ui):
         self.ui = ui
 
-        self.__ovenTemp = 0
-        self.__floorTemp = 0
-        self.__pufferTemp = 0
-        self.__fumesTemp = 0
-        self.__deltaPression = 0
+        self.__ovenTemp = 0 # holds oven internal temperature
+        self.__floorTemp = 0 # holds oven's floor temperature
+        self.__pufferTemp = 0 # holds puffer temperature (water)
+        self.__fumesTemp = 0 # holds exhaust fumes temperture
+        self.__deltaPression = 0 # holds pression variation
+        
+        self.__setPoint = self.ui.horizontalSlider.minimum() # system set point
 
+        # state variables
+        self.__burner = False
         self.__light = False
         self.__steam = False
         self.__burnerFan = False
@@ -38,16 +43,26 @@ class OvenController(object):
         # threads
         self.__threads = []
 
+        self.__burnerController = BurnerController(controller = self)
+        self.__threads.append(self.__burnerController)
+        self.__burnerController.start()
+            
         self.__sensReader = SensReader(controller = self)
-        self.__sensReader.start()
         self.__threads.append(self.__sensReader)
+        self.__sensReader.start()
 
         self.__fanController = FanController(controller = self)
-        self.__fanController.start()
         self.__threads.append(self.__fanController)
+        self.__fanController.start()
 
     def getOvenTemp(self):
         return self.__ovenTemp
+    
+    def getDeltaPression(self):
+        return self.__deltaPression
+    
+    def getSetPoint(self):
+        return self.__setPoint
 
     def setData(self, ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression):
         if ovenTemp is not None:
@@ -70,6 +85,14 @@ class OvenController(object):
             self.__deltaPression = deltaPression
             self.ui.pressureLCD.display(self.__deltaPression)
 
+    def toggleBurner(self):
+        self.__burner = not self.__burner
+        
+        if self.__burner:
+            self.__burnerController.resume()
+        else:
+            self.__burnerController.pause()
+        
     def toggleLight(self):
         self.__light = not self.__light
 
@@ -79,7 +102,6 @@ class OvenController(object):
         else:
             GPIO.output(PIN.RELAY4_LIGHT, GPIO.HIGH)
             self.notify("Spegnimento luce.", 3000)
-
 
     def toggleSteam(self):
         self.__steam = not self.__steam
@@ -102,9 +124,9 @@ class OvenController(object):
 
     def toggleInternalOpening(self):
         self.manageIntOpeningButton(False)
-        internalOpeningController = InternalOpeningController(self)
-        internalOpeningController.start()
+        internalOpeningController = InternalOpeningController(controller = self)
         self.__threads.append(internalOpeningController)
+        internalOpeningController.start()     
 
     def toggleExternalOpening(self):
         self.__externalOpening = not self.__externalOpening
@@ -114,6 +136,10 @@ class OvenController(object):
             GPIO.output(PIN.RELAY7_EST_OPENING, GPIO.LOW)
         else:
             GPIO.output(PIN.RELAY7_EST_OPENING, GPIO.HIGH)
+            
+    def manageBurnerButtonAndLabel(self, state):
+        self.__burner = state
+        self.ui.manageBurnerSignal.emit(state)
 
     def manageIntOpeningButton(self, state):
         self.ui.internalOpeningButton.setEnabled(state)
@@ -123,13 +149,17 @@ class OvenController(object):
         subprocess.Popen(['mpg321', AUDIO_PATH])
         self.notify("Timer scattato!!", 5000)
 
-    def setThermostatValue(self, value): # TODO
-        self.notify("Nuova temperatura impostata.", 3000)
+    def setThermostatValue(self, value):
+        if value is not None:
+            self.__setPoint = value
+            self.notify("Nuova temperatura impostata.", 3000)
 
     def notify(self, message, time):
         self.ui.notifySignal.emit(message, time)
 
     def close(self):
+        self.__burnerController.kill()
+        self.__burnerController.resume()
         self.__sensReader.kill()
         self.__fanController.kill()
 

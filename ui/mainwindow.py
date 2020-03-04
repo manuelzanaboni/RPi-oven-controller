@@ -10,6 +10,7 @@ import math
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     notifySignal = pyqtSignal(str, int)
+    manageBurnerSignal = pyqtSignal(bool)
     
     def __init__(self, *args, **kwargs):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
@@ -38,11 +39,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def notifySlot(self, message, time):
         self.notify(message, time)
         
+    @pyqtSlot(bool)
+    def manageBurnerSlot(self, state):
+        self.manageBurnerButtonAndLabel(state)
+        
     def connectActions(self):
         """
         Manage buttons' action
         """
         self.notifySignal.connect(self.notifySlot)
+        self.manageBurnerSignal.connect(self.manageBurnerSlot)
         
         self.burnerButton.clicked.connect(self.toggleBurner)
 
@@ -79,12 +85,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.resetTimerButton.clicked.connect(self.reset)
 
     def toggleBurner(self):  # TODO
-        if self.fireMovie.state():
-            self.fireMovie.stop()
-            self.burnerLabel.hide()
-        else:
+        self.controller.toggleBurner() # control on return value?
+        self.manageBurnerButtonAndLabel(not self.fireMovie.state())
+            
+    def manageBurnerButtonAndLabel(self, state):
+        if state:
             self.fireMovie.start()
             self.burnerLabel.show()
+        else:
+            self.fireMovie.stop()
+            self.burnerLabel.hide()
 
     def toggleLight(self):
         self.controller.toggleLight()
