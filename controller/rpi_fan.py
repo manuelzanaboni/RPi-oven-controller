@@ -8,7 +8,7 @@ import RPi.GPIO as GPIO
 import subprocess
 
 ON_THRESHOLD = 42  # (degrees Celsius) Fan kicks on at this temperature.
-OFF_THRESHOLD = 40  # (degress Celsius) Fan shuts off at this temperature.
+OFF_THRESHOLD = 38  # (degress Celsius) Fan shuts off at this temperature.
 SLEEP_INTERVAL = 5  # (seconds) How often we check the core temperature.
 
 class FanController(Thread):

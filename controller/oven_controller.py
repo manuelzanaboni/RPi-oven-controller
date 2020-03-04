@@ -11,6 +11,7 @@ from .rpi_fan import FanController
 from .internal_opening_controller import InternalOpeningController
 
 AUDIO_PATH = 'src/audio.mp3'
+UPPER_SAFETY_PRESSION_THRESHOLD = 500 # (Pa) delta pression threshold. if greater, burner must turn off.
 
 class OvenController(object):
     def __init__(self, ui):
@@ -26,6 +27,7 @@ class OvenController(object):
 
         # state variables
         self.__burner = False
+        self.__burnerValve = False
         self.__light = False
         self.__steam = False
         self.__burnerFan = False
@@ -84,6 +86,11 @@ class OvenController(object):
         if deltaPression is not None:
             self.__deltaPression = deltaPression
             self.ui.pressureLCD.display(self.__deltaPression)
+            
+            if self.__deltaPression >= UPPER_SAFETY_PRESSION_THRESHOLD: # react to possible blockage
+                self.notify("Blocco bruciatore causa superamento massima soglia pressione.", 0)
+                self.manageBurnerButtonAndLabel(False)
+                self.__burnerController.pause()
 
     def toggleBurner(self):
         self.__burner = not self.__burner
@@ -92,6 +99,16 @@ class OvenController(object):
             self.__burnerController.resume()
         else:
             self.__burnerController.pause()
+            
+    def toggleBurnerValve(self):
+        self.__burnerValve = not self.__burnerValve
+        
+        if self.__burnerValve:
+            GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.LOW)
+            self.notify("Apertura valvola seconda fiamma.", 3000)
+        else:
+            GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.HIGH)
+            self.notify("Chiusura valvola seconda fiamma.", 3000)
         
     def toggleLight(self):
         self.__light = not self.__light
@@ -140,6 +157,9 @@ class OvenController(object):
     def manageBurnerButtonAndLabel(self, state):
         self.__burner = state
         self.ui.manageBurnerSignal.emit(state)
+        
+    def toggleBurnerButtonEnabled(self, state):
+        self.ui.burnerButton.setEnabled(state)
 
     def manageIntOpeningButton(self, state):
         self.ui.internalOpeningButton.setEnabled(state)

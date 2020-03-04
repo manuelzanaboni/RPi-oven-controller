@@ -51,6 +51,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.manageBurnerSignal.connect(self.manageBurnerSlot)
         
         self.burnerButton.clicked.connect(self.toggleBurner)
+        
+        self.burnerValveButton.clicked.connect(self.toggleBurnerValve)
 
         self.lightButton.clicked.connect(self.toggleLight)
 
@@ -84,8 +86,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.stopTimerButton.clicked.connect(self.timer.stop)
         self.resetTimerButton.clicked.connect(self.reset)
 
-    def toggleBurner(self):  # TODO
-        self.controller.toggleBurner() # control on return value?
+    def toggleBurner(self):
+        self.controller.toggleBurner()
         self.manageBurnerButtonAndLabel(not self.fireMovie.state())
             
     def manageBurnerButtonAndLabel(self, state):
@@ -95,6 +97,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.fireMovie.stop()
             self.burnerLabel.hide()
+    
+    def toggleBurnerValve(self):
+        self.controller.toggleBurnerValve()
 
     def toggleLight(self):
         self.controller.toggleLight()
