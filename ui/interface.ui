@@ -417,7 +417,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normalon>:/src/thermostatDown.png</normalon>
+         <normalon>:/resources/thermostatDown.png</normalon>
         </iconset>
        </property>
        <property name="iconSize">
@@ -475,7 +475,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normalon>:/src/thermostatUp.png</normalon>
+         <normalon>:/resources/thermostatUp.png</normalon>
         </iconset>
        </property>
        <property name="iconSize">
@@ -630,8 +630,8 @@
     </property>
     <property name="icon">
      <iconset resource="resources.qrc">
-      <normaloff>:/src/lightOff.png</normaloff>
-      <normalon>:/src/lightOn.png</normalon>:/src/lightOff.png</iconset>
+      <normaloff>:/resources/lightOff.png</normaloff>
+      <normalon>:/resources/lightOn.png</normalon>:/resources/lightOff.png</iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -835,8 +835,9 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/src/plus.png</normaloff>:/src/plus.png</iconset>
+             <iconset>
+              <normalon>:/resources/plus.png</normalon>
+             </iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -861,8 +862,9 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/src/minus.png</normaloff>:/src/minus.png</iconset>
+             <iconset>
+              <normalon>:/resources/minus.png</normalon>
+             </iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -986,8 +988,8 @@
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
-         <normaloff>:/src/openingOpen.png</normaloff>
-         <normalon>:/src/openingClose.png</normalon>:/src/openingOpen.png</iconset>
+         <normaloff>:/resources/openingOpen.png</normaloff>
+         <normalon>:/resources/openingClose.png</normalon>:/resources/openingOpen.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -1051,8 +1053,8 @@
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
-         <normaloff>:/src/openingOpen.png</normaloff>
-         <normalon>:/src/openingClose.png</normalon>:/src/openingOpen.png</iconset>
+         <normaloff>:/resources/openingOpen.png</normaloff>
+         <normalon>:/resources/openingClose.png</normalon>:/resources/openingOpen.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -1089,8 +1091,9 @@
      <string/>
     </property>
     <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/src/steam.png</normaloff>:/src/steam.png</iconset>
+     <iconset>
+      <normalon>:/resources/steam.png</normalon>
+     </iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -1156,8 +1159,8 @@
     </property>
     <property name="icon">
      <iconset resource="resources.qrc">
-      <normaloff>:/src/alexaOff.png</normaloff>
-      <normalon>:/src/alexaOn.png</normalon>:/src/alexaOff.png</iconset>
+      <normaloff>:/resources/alexaOff.png</normaloff>
+      <normalon>:/resources/alexaOn.png</normalon>:/resources/alexaOff.png</iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -1191,8 +1194,9 @@
      <string/>
     </property>
     <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/src/quit.png</normaloff>:/src/quit.png</iconset>
+     <iconset>
+      <normalon>:/resources/quit.png</normalon>
+     </iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -1226,8 +1230,9 @@
      <string/>
     </property>
     <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/src/OnOff.png</normaloff>:/src/OnOff.png</iconset>
+     <iconset>
+      <normalon>:/resources/OnOff.png</normalon>
+     </iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -1272,8 +1277,8 @@
     </property>
     <property name="icon">
      <iconset resource="resources.qrc">
-      <normaloff>:/src/burnerValveOff.png</normaloff>
-      <normalon>:/src/burnerValveOn.png</normalon>:/src/burnerValveOff.png</iconset>
+      <normaloff>:/resources/burnerValveOff.png</normaloff>
+      <normalon>:/resources/burnerValveOn.png</normalon>:/resources/burnerValveOff.png</iconset>
     </property>
     <property name="iconSize">
      <size>

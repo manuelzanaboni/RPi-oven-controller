@@ -21,14 +21,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer = QtCore.QTimer()
         self.timerLCD.display("{0:02d}:{1:02d}".format(0, 0))
 
-        self.fanMovie = QtGui.QMovie(":/src/fan.gif")
+        self.fanMovie = QtGui.QMovie(":/resources/fan.gif")
         
         self.burnerLabel = QtWidgets.QLabel(self.centralwidget)
         self.burnerLabel.move(520, 280)
         self.burnerLabel.setText("")
         self.burnerLabel.setObjectName("burnerLabel")
 
-        self.fireMovie = QtGui.QMovie(":/src/fire.gif")
+        self.fireMovie = QtGui.QMovie(":/resources/fire.gif")
         self.fireMovie.setScaledSize(QtCore.QSize(160, 160))
         self.burnerLabel.setMovie(self.fireMovie)
         self.burnerLabel.hide()

@@ -1,21 +1,21 @@
 <!DOCTYPE RCC><RCC version="1.0">
     <qresource>
-        <file>../src/quit.png</file>
-        <file>../src/fire.gif</file>
-        <file>../src/thermostatDown.png</file>
-        <file>../src/thermostatUp.png</file>
-        <file>../src/lightOff.png</file>
-        <file>../src/lightOn.png</file>
-        <file>../src/alexaOn.png</file>
-        <file>../src/alexaOff.png</file>
-        <file>../src/steam.png</file>
-        <file>../src/openingOpen.png</file>
-        <file>../src/openingClose.png</file>
-        <file>../src/fan.gif</file>
-        <file>../src/plus.png</file>
-        <file>../src/minus.png</file>
-        <file>../src/OnOff.png</file>
-        <file>../src/burnerValveOff.png</file>
-        <file>../src/burnerValveOn.png</file>
+        <file>../resources/quit.png</file>
+        <file>../resources/fire.gif</file>
+        <file>../resources/thermostatDown.png</file>
+        <file>../resources/thermostatUp.png</file>
+        <file>../resources/lightOff.png</file>
+        <file>../resources/lightOn.png</file>
+        <file>../resources/alexaOn.png</file>
+        <file>../resources/alexaOff.png</file>
+        <file>../resources/steam.png</file>
+        <file>../resources/openingOpen.png</file>
+        <file>../resources/openingClose.png</file>
+        <file>../resources/fan.gif</file>
+        <file>../resources/plus.png</file>
+        <file>../resources/minus.png</file>
+        <file>../resources/OnOff.png</file>
+        <file>../resources/burnerValveOff.png</file>
+        <file>../resources/burnerValveOn.png</file>
     </qresource>
 </RCC>
