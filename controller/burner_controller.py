@@ -36,7 +36,7 @@ class BurnerController(Thread):
         
     def thermostatCalling(self):
         """
-        Wheter the burner should be ON or OFF.
+        Whether the burner should be ON or OFF.
         Returns True if SetPoint is greater than current internal temperature
         """
         return self.controller.getSetPoint() > self.controller.getOvenTemp()
