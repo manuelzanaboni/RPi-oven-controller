@@ -5,9 +5,10 @@ import sqlite3
 import time
 from threading import Thread
 
-import default_gpio as PIN
 import MAX6675.MAX6675 as MAX6675
 import Adafruit_BMP.BMP085 as BMP085
+import utils.default_gpio as PIN
+from utils.messages import SENS_READER_MSGS as MSG
 
 class SensReader(Thread):
     def __init__(self, controller):
@@ -27,14 +28,14 @@ class SensReader(Thread):
         
     def run(self):
         sum = 0
-        self.controller.notify("Avviamento procedura di calibrazione pressione.", 2000)
+        self.controller.notify(MSG["calibration"], 2000)
         for i in range(10): 
             sum += self.pressionSensor.read_pressure()
             time.sleep(0.3)
         
         mean = sum // 10
 
-        self.controller.notify("Avviamento ciclo di lettura sensori.", 4000)
+        self.controller.notify(MSG["startup"])
         while not self.stop:
             ovenTemp = self.ovenThermocouple.readTempC()
             floorTemp = self.floorThermocouple.readTempC()

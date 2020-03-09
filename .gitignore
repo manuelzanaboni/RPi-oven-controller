@@ -1,6 +1,7 @@
 __pycache__
 ui/__pycache__
 controller/__pycache__
+utils/__pycache__
 .idea
 Files
 initializeDB.py

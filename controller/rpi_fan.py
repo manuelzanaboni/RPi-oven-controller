@@ -3,9 +3,11 @@
 
 import time
 from threading import Thread
-import default_gpio as PIN
 import RPi.GPIO as GPIO
 import subprocess
+
+import utils.default_gpio as PIN
+from utils.messages import RPI_FAN_MSGS as MSG
 
 ON_THRESHOLD = 42  # (degrees Celsius) Fan kicks on at this temperature.
 OFF_THRESHOLD = 38  # (degress Celsius) Fan shuts off at this temperature.
@@ -43,9 +45,9 @@ class FanController(Thread):
 
             if temp > ON_THRESHOLD and pinState:
                 GPIO.output(PIN.RELAY8_RPI_FAN, GPIO.LOW)
-                self.controller.notify("Ventola di raffrescamento attivata.", 3000)
+                self.controller.notify(MSG["fan_on"])
             elif not pinState and temp < OFF_THRESHOLD:
                 GPIO.output(PIN.RELAY8_RPI_FAN, GPIO.HIGH)
-                self.controller.notify("Ventola di raffrescamento disattivata.", 3000)
+                self.controller.notify(MSG["fan_off"])
                 
             time.sleep(SLEEP_INTERVAL)

@@ -3,8 +3,10 @@
 
 import time
 from threading import Thread, Condition
-import default_gpio as PIN
 import RPi.GPIO as GPIO
+
+import utils.default_gpio as PIN
+from utils.messages import BURNER_CONTROLLER_MSGS as MSG
 
 SLEEP_TIME = 3
 PRESSION_DELTA_THRESHOLD = 30

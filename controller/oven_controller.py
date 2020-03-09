@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import RPi.GPIO as GPIO
-import default_gpio as PIN
 import subprocess
 
+import utils.default_gpio as PIN
+from utils.messages import OVEN_CONTROLLER_MSGS as MSG
 from .burner_controller import BurnerController
 from .sens_reader import SensReader
 from .rpi_fan import FanController
 from .internal_opening_controller import InternalOpeningController
 
-AUDIO_PATH = 'src/audio.mp3'
+AUDIO_PATH = 'resources/audio.mp3'
 UPPER_SAFETY_PRESSION_THRESHOLD = 500 # (Pa) delta pression threshold. if greater, burner must turn off.
 
 class OvenController(object):
@@ -88,7 +89,7 @@ class OvenController(object):
             self.ui.pressureLCD.display(self.__deltaPression)
             
             if self.__deltaPression >= UPPER_SAFETY_PRESSION_THRESHOLD: # react to possible blockage
-                self.notify("Blocco bruciatore causa superamento massima soglia pressione.", 0)
+                self.notify(MSG["burner_blockage"], 0)
                 self.manageBurnerButtonAndLabel(False)
                 self.__burnerController.pause()
 
@@ -105,27 +106,27 @@ class OvenController(object):
         
         if self.__burnerValve:
             GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.LOW)
-            self.notify("Apertura valvola seconda fiamma.", 3000)
+            self.notify(MSG["valve_on"])
         else:
             GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.HIGH)
-            self.notify("Chiusura valvola seconda fiamma.", 3000)
+            self.notify(MSG["valve_off"])
         
     def toggleLight(self):
         self.__light = not self.__light
 
         if self.__light:
             GPIO.output(PIN.RELAY4_LIGHT, GPIO.LOW)
-            self.notify("Accensione luce.", 3000)
+            self.notify(MSG["light_on"])
         else:
             GPIO.output(PIN.RELAY4_LIGHT, GPIO.HIGH)
-            self.notify("Spegnimento luce.", 3000)
+            self.notify(MSG["light_off"])
 
     def toggleSteam(self):
         self.__steam = not self.__steam
 
         if self.__steam:
             GPIO.output(PIN.RELAY5_STEAM, GPIO.LOW)
-            self.notify("Rilascio vapore.", 2000)
+            self.notify(MSG["release_steam"])
         else:
             GPIO.output(PIN.RELAY5_STEAM, GPIO.HIGH)
 
@@ -134,10 +135,10 @@ class OvenController(object):
 
         if self.__burnerFan:
             GPIO.output(PIN.RELAY3_BURNER_FAN, GPIO.LOW)
-            self.notify("Ventola bruciatore attivata.", 3000)
+            self.notify(MSG["fan_on"])
         else:
             GPIO.output(PIN.RELAY3_BURNER_FAN, GPIO.HIGH)
-            self.notify("Ventola bruciatore disattivata.", 3000)
+            self.notify(MSG["fan_off"])
 
     def toggleInternalOpening(self):
         self.manageIntOpeningButton(False)
@@ -147,7 +148,7 @@ class OvenController(object):
 
     def toggleExternalOpening(self):
         self.__externalOpening = not self.__externalOpening
-        self.notify("Apertura esterna azionata.", 3000)
+        self.notify(MSG["ext_opening_triggered"])
 
         if self.__externalOpening:
             GPIO.output(PIN.RELAY7_EST_OPENING, GPIO.LOW)
@@ -167,14 +168,14 @@ class OvenController(object):
     def playAudio(self):
         # assumes that audio reproduction finishes before app exit
         subprocess.Popen(['mpg321', AUDIO_PATH])
-        self.notify("Timer scattato!!", 5000)
+        self.notify(MSG["timeout"], 0)
 
     def setThermostatValue(self, value):
         if value is not None:
             self.__setPoint = value
-            self.notify("Nuova temperatura impostata.", 3000)
+            self.notify(MSG["set_point"])
 
-    def notify(self, message, time):
+    def notify(self, message, time = 3000):
         self.ui.notifySignal.emit(message, time)
 
     def close(self):

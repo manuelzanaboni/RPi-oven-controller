@@ -3,8 +3,10 @@
 
 import time
 from threading import Thread
-import default_gpio as PIN
 import RPi.GPIO as GPIO
+
+import utils.default_gpio as PIN
+from utils.messages import INTERNAL_OPENING_MSGS as MSG
 
 SLEEP_INTERVAL = 5
 
@@ -18,7 +20,7 @@ class InternalOpeningController(Thread):
         self.stop = True
         
     def run(self):
-        self.controller.notify("Apertura interna azionata.", 3000)
+        self.controller.notify(MSG["opening_triggered"])
         GPIO.output(PIN.RELAY6_INT_OPENING, GPIO.LOW)
         time.sleep(SLEEP_INTERVAL)
         GPIO.output(PIN.RELAY6_INT_OPENING, GPIO.HIGH)
