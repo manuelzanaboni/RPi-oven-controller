@@ -18,20 +18,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.controller = OvenController(self)  # set controller
 
         self.timerSeconds = 0
-        self.timer = QtCore.QTimer()
+        self.timer = QtCore.QTimer(parent = self)
         self.timerLCD.display("{0:02d}:{1:02d}".format(0, 0))
 
-        self.fanMovie = QtGui.QMovie(":/resources/fan.gif")
+        self.fanMovie = QtGui.QMovie(":/resources/fan.gif", parent = self)
         
-        self.burnerLabel = QtWidgets.QLabel(self.centralwidget)
-        self.burnerLabel.move(520, 280)
+        self.burnerLabel.setGeometry(QtCore.QRect(840, 210, 150, 200))
         self.burnerLabel.setText("")
         self.burnerLabel.setObjectName("burnerLabel")
 
-        self.fireMovie = QtGui.QMovie(":/resources/fire.gif")
+        self.fireMovie = QtGui.QMovie(":/resources/fire.gif", parent = self)
         self.fireMovie.setScaledSize(QtCore.QSize(160, 160))
         self.burnerLabel.setMovie(self.fireMovie)
         self.burnerLabel.hide()
+        
+        self.burnerValveLabel.hide()
         
         self.connectActions()
         
@@ -51,7 +52,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.manageBurnerSignal.connect(self.manageBurnerSlot)
         
         self.burnerButton.clicked.connect(self.toggleBurner)
-        
+
         self.burnerValveButton.clicked.connect(self.toggleBurnerValve)
 
         self.lightButton.clicked.connect(self.toggleLight)
@@ -79,12 +80,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.quitButton.clicked.connect(self.close)
 
+        # timer connections
         self.timer.timeout.connect(self.tick)
         self.decreaseTimerButton.clicked.connect(self.subtract10)
         self.increaseTimerButton.clicked.connect(self.add10)
         self.startTimerButton.clicked.connect(lambda: self.timer.start(1000) if self.timerSeconds > 0 else False)
         self.stopTimerButton.clicked.connect(self.timer.stop)
         self.resetTimerButton.clicked.connect(self.reset)
+        
+        # views linking
+        self.controller_settingsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
+        self.controller_chartsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
+        self.charts_settingsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
+        self.charts_controllerButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+        self.settings_controllerButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+        self.settings_chartsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
 
     def toggleBurner(self):
         self.controller.toggleBurner()

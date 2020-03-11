@@ -86,7 +86,7 @@ class OvenController(object):
 
         if deltaPression is not None:
             self.__deltaPression = deltaPression
-            self.ui.pressureLCD.display(self.__deltaPression)
+            self.ui.pressionLCD.display(self.__deltaPression)
             
             if self.__deltaPression >= UPPER_SAFETY_PRESSION_THRESHOLD: # react to possible blockage
                 self.notify(MSG["burner_blockage"], 0)
@@ -105,9 +105,11 @@ class OvenController(object):
         self.__burnerValve = not self.__burnerValve
         
         if self.__burnerValve:
+            self.ui.burnerValveLabel.show()
             GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.LOW)
             self.notify(MSG["valve_on"])
         else:
+            self.ui.burnerValveLabel.hide()
             GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.HIGH)
             self.notify(MSG["valve_off"])
         

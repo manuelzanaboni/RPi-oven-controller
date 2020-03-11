@@ -2,7 +2,8 @@ QLCDNumber#thermostatLCD {
     color: #ED1B24;
 }
 
-QFrame#timerFrame {
+QFrame#timerFrame,
+QFrame#thermostatFrame{
     border: 1px solid grey;
     border-radius: 5px;
     font: italic;
@@ -47,7 +48,7 @@ QPushButton#internalOpeningButton:checked,
 QPushButton#externalOpeningButton:checked,
 QPushButton#alexaButton:checked,
 QPushButton#burnerValveButton:checked {
-	background-color: rgba(255,255,255,0);
+    background-color: rgba(255,255,255,0);
     border-radius: 10px;
 }
 
