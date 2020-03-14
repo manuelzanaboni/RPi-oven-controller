@@ -8,16 +8,17 @@ import RPi.GPIO as GPIO
 import utils.default_gpio as PIN
 from utils.messages import BURNER_CONTROLLER_MSGS as MSG
 
-SLEEP_TIME = 3
-PRESSION_DELTA_THRESHOLD = 30
+SLEEP_TIME = 3 # (seconds) overall sleep time
+PRESSION_CHECK_SLEEP = 10 # (seconds) sleep time after burner startup
+PRESSION_DELTA_THRESHOLD = 30 # (Pa) minimum delta pression that the burner should generate
+TEMP_DELTA_TO_REACH_SETPOINT = 30 # (degress Celsius) setpoint valve fallback
 
 class BurnerController(Thread):
     def __init__(self, controller):
         super(BurnerController, self).__init__()
         self.controller = controller
-        
         self.paused = True # Start out paused.
-        self.state = Condition()
+        self.state = Condition()        
         self.stop = False
         
     def resume(self):
@@ -32,6 +33,10 @@ class BurnerController(Thread):
                 self.paused = True # Pause self.
             
     def kill(self):
+        """
+        End self execution.
+        Method called on application exit.
+        """
         self.stop = True
         
     def thermostatCalling(self):
@@ -41,83 +46,112 @@ class BurnerController(Thread):
         """
         return self.controller.getSetPoint() > self.controller.getOvenTemp()
     
-    def getBurnerRelayState(self):
+    def getBurnerState(self):
         """
-        Returns burner relay state (0 or 1):
-        1 = GPIO.HIGH = Burner OFF
-        0 = GPIO.LOW = Burner ON
+        Returns burner state (True or False):
+        GPIO.HIGH = 1 --> Burner OFF --> return False
+        GPIO.LOW = 0 --> Burner ON --> return True
         """
-        return GPIO.input(PIN.RELAY1_BURNER)
+        return not GPIO.input(PIN.RELAY1_BURNER)
     
     def turnBurnerOn(self):
+        """
+        Atomic burner start-up
+        """
         GPIO.output(PIN.RELAY1_BURNER, GPIO.LOW)
         
     def turnBurnerOff(self):
+        """
+        Atomic burner shut-down
+        """
         GPIO.output(PIN.RELAY1_BURNER, GPIO.HIGH)
         
     def checkPression(self):
-        print("Waiting to check pression increment...")
-        self.controller.toggleBurnerButtonEnabled(True)
-        if self.controller.getDeltaPression() > PRESSION_DELTA_THRESHOLD:
-            print("Everything is fine!")
-        else:
-            print("Burner started but pression didnt't increase!")
-            print("Stopping Burner and pausing thread")
+        """
+        This method checks if oven internal pression is increased after burner start-up.
+        """            
+        if self.controller.getDeltaPression() < PRESSION_DELTA_THRESHOLD:
             self.controller.manageBurnerButtonAndLabel(False)
             self.pause()
+            self.controller.notifyCritical(MSG["blockage"])
             
-    def setBurnerStage(self): #TODO
+        if not self.controller.isBurnerButtonEnabled():
+            self.controller.toggleBurnerButtonEnabled(True)
+            
+    def manageBurnerValve(self): #TODO
         """
         Stage1 - setPoint >= 150, t = 100 apri valvola
         Stage2 - setPoint - 30 chiudi valvola
         """
-        pass
+        ovenTemp = self.controller.getOvenTemp()
+        lowerBound = self.controller.getLowerThermostatBound()
+        setPoint = self.controller.getSetPoint()
+        valveState = self.controller.getBurnerValve()
+        
+        """
+        Al momento
+        apre a 100 gradi, chiude a setpoint - 30
+        setpoint tra 100 e 129 non apre
+        setpoint 130 apre...al ciclo dopo chiude
+        setpoint alto...tutto ok
+        """
+        if ovenTemp >= lowerBound and ovenTemp <= (setPoint - TEMP_DELTA_TO_REACH_SETPOINT):
+            if not valveState:
+                self.controller.toggleBurnerValve(thermostatOverride = True)
+        else:
+            if valveState:
+                self.controller.toggleBurnerValve(thermostatOverride = False)
         
     def run(self):
-        while not self.stop:
+        while not self.stop:                    
             with self.state:
                 if self.paused:
                     print("Thread paused, waiting to resume...")
                     self.state.wait()  # Block execution until notified.
-                    
-            print("Executing")
+            
             if not self.stop: # skip execution if kill() has been called
                 
                 if self.thermostatCalling():
-                    print("Burner should be ON")
-                    print("Relay is: " + str(self.getBurnerRelayState()))
-                    
-                    if self.getBurnerRelayState():
-                        # burner start-up and pression check
+                    """
+                    Here thermostat is triggered, thus burner should be ON.
+                    """
+                    if not self.getBurnerState():
+                        """
+                        Burner is currently OFF --> startup.
+                        Disable burner button to prevent faults.
+                        Check if pression is raised after burner startup.
+                        """
                         self.turnBurnerOn()
                         self.controller.toggleBurnerButtonEnabled(False)
-                        print("Now Relay is: " + str(self.getBurnerRelayState()))
+                        self.controller.notify(MSG["burner_startup"], 5000)
                         
-                        time.sleep(10)
+                        time.sleep(PRESSION_CHECK_SLEEP)
+                        
                         self.checkPression()
                     else:
-                        # burner staging
+                        """
+                        Burner is already ON.
+                        Keep checking pression.
+                        Open/Close burner valve according to operating curve.
+                        """
                         self.checkPression()
-                        print("Thermostat calling, burner already ON")
-                        self.setBurnerStage() # TODO
-                            
+                        self.manageBurnerValve()
+                        
                 else:
-                    print("Burner should be OFF")
-                    print("Relay is: " + str(self.getBurnerRelayState()))
-                    
-                    # TODO RESET STAGING
-                    
-                    if not self.getBurnerRelayState():
-                        self.controller.manageBurnerButtonAndLabel(False)
+                    """
+                    Here thermostat is not triggered, thus burner should be OFF.
+                    """                    
+                    if self.getBurnerState():
                         self.pause()
-                        print("Now Relay is: " + str(self.getBurnerRelayState()))
-                
+                        self.controller.manageBurnerButtonAndLabel(False)
+                        self.controller.notify(MSG["temp_reached"])
             
-            if not self.stop:
+            if not self.paused:
+                """
+                Sleep only if thread (self) is not paused.
+                If thread is paused, skip sleeping to enable fast start-up.
+                (this avoid the need to disable burner button, in order to prevent fault)
+                """
                 time.sleep(SLEEP_TIME)
             
         print("Stopping thread")
-            
-            
-            
-            

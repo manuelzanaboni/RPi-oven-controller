@@ -11,7 +11,7 @@ from .sens_reader import SensReader
 from .rpi_fan import FanController
 from .internal_opening_controller import InternalOpeningController
 
-AUDIO_PATH = 'resources/audio.mp3'
+AUDIO_PATH = 'resources/audio.mp3' # where to find audio file to be played
 UPPER_SAFETY_PRESSION_THRESHOLD = 500 # (Pa) delta pression threshold. if greater, burner must turn off.
 
 class OvenController(object):
@@ -66,6 +66,12 @@ class OvenController(object):
     
     def getSetPoint(self):
         return self.__setPoint
+    
+    def getBurnerValve(self):
+        return self.__burnerValve
+    
+    def getLowerThermostatBound(self):
+        return self.ui.horizontalSlider.minimum()
 
     def setData(self, ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression):
         if ovenTemp is not None:
@@ -89,7 +95,7 @@ class OvenController(object):
             self.ui.pressionLCD.display(self.__deltaPression)
             
             if self.__deltaPression >= UPPER_SAFETY_PRESSION_THRESHOLD: # react to possible blockage
-                self.notify(MSG["burner_blockage"], 0)
+                self.notifyCritical(MSG["burner_blockage"])
                 self.manageBurnerButtonAndLabel(False)
                 self.__burnerController.pause()
 
@@ -101,8 +107,12 @@ class OvenController(object):
         else:
             self.__burnerController.pause()
             
-    def toggleBurnerValve(self):
-        self.__burnerValve = not self.__burnerValve
+    def toggleBurnerValve(self, thermostatOverride = None):
+        if thermostatOverride is not None:
+            self.__burnerValve = thermostatOverride
+            self.ui.burnerValveButton.setChecked(thermostatOverride)
+        else:
+            self.__burnerValve = not self.__burnerValve
         
         if self.__burnerValve:
             self.ui.burnerValveLabel.show()
@@ -161,6 +171,9 @@ class OvenController(object):
         self.__burner = state
         self.ui.manageBurnerSignal.emit(state)
         
+    def isBurnerButtonEnabled(self):
+        return self.ui.burnerButton.isEnabled()
+    
     def toggleBurnerButtonEnabled(self, state):
         self.ui.burnerButton.setEnabled(state)
 
@@ -170,7 +183,7 @@ class OvenController(object):
     def playAudio(self):
         # assumes that audio reproduction finishes before app exit
         subprocess.Popen(['mpg321', AUDIO_PATH])
-        self.notify(MSG["timeout"], 0)
+        self.notifyCritical(MSG["timeout"])
 
     def setThermostatValue(self, value):
         if value is not None:
@@ -178,7 +191,10 @@ class OvenController(object):
             self.notify(MSG["set_point"])
 
     def notify(self, message, time = 3000):
-        self.ui.notifySignal.emit(message, time)
+        self.ui.notifySignal.emit(message, False, time)
+        
+    def notifyCritical(self, message, time = 0):
+        self.ui.notifySignal.emit(message, True, time)
 
     def close(self):
         self.__burnerController.kill()

@@ -6,7 +6,11 @@ Global definition of notification messages.
 Stored as dictionaries.
 """
 
-BURNER_CONTROLLER_MSGS = {}
+BURNER_CONTROLLER_MSGS = {
+    "blockage" : "Blocco bruciatore. Aumento pressione non rilevato!!!",
+    "burner_startup" : "Avviamento bruciatore...controllo incremento di pressione.",
+    "temp_reached" : "Il forno ha raggiunto la temperatura impostata. Spegnimento bruciatore."
+    }
 
 INTERNAL_OPENING_MSGS = {
     "opening_triggered" : "Apertura interna azionata."

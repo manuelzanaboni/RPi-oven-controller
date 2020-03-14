@@ -9,7 +9,7 @@ import math
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
-    notifySignal = pyqtSignal(str, int)
+    notifySignal = pyqtSignal(str, bool, int)
     manageBurnerSignal = pyqtSignal(bool)
     
     def __init__(self, *args, **kwargs):
@@ -36,9 +36,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         self.connectActions()
         
-    @pyqtSlot(str, int)
-    def notifySlot(self, message, time):
-        self.notify(message, time)
+    @pyqtSlot(str, bool, int)
+    def notifySlot(self, message, critical, time):
+        if critical:
+            self.notifyCritical(message, time)
+        else:
+            self.notify(message, time)   
         
     @pyqtSlot(bool)
     def manageBurnerSlot(self, state):
@@ -80,7 +83,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.quitButton.clicked.connect(self.close)
 
-        # timer connections
+        """
+        timer connections
+        """
         self.timer.timeout.connect(self.tick)
         self.decreaseTimerButton.clicked.connect(self.subtract10)
         self.increaseTimerButton.clicked.connect(self.add10)
@@ -88,7 +93,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.stopTimerButton.clicked.connect(self.timer.stop)
         self.resetTimerButton.clicked.connect(self.reset)
         
-        # views linking
+        """
+        views linking
+        """
         self.controller_settingsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
         self.controller_chartsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
         self.charts_settingsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
@@ -136,9 +143,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def toggleAlexa(self):  # TODO future feature
         pass
 
-    def setThermostatTemp(self):# TODO
+    def setThermostatTemp(self):
         value = self.thermostatLCD.value()
-        print(value)
         self.controller.setThermostatValue(value)
         
     def incrementThermostat(self):
@@ -167,6 +173,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             event.ignore()
             
     def notify(self, message, time):
+        self.statusbar.setStyleSheet("font: 20px bold; color: #000000;")
+        self.statusbar.showMessage(message, time)
+        
+    def notifyCritical(self, message, time):
+        self.statusbar.setStyleSheet("font: 20px bold; color: #ED1B24;")
         self.statusbar.showMessage(message, time)
 
 ############# TIMER MANAGER #############
