@@ -29,6 +29,7 @@ class OvenController(object):
         # state variables
         self.__burner = False
         self.__burnerValve = False
+        self.__overrideValve = None
         self.__light = False
         self.__steam = False
         self.__burnerFan = False
@@ -70,6 +71,9 @@ class OvenController(object):
     def getBurnerValve(self):
         return self.__burnerValve
     
+    def getOverrideValve(self):
+        return self.__overrideValve
+    
     def getLowerThermostatBound(self):
         return self.ui.horizontalSlider.minimum()
 
@@ -107,22 +111,44 @@ class OvenController(object):
         else:
             self.__burnerController.pause()
             
-    def toggleBurnerValve(self, thermostatOverride = None):
+    def toggleBurnerValve(self):
+
+        self.__burnerValve = not self.__burnerValve
+        
+        if self.__burnerValve:
+            self.__overrideValve = True
+            self.openValve()
+        else:
+            self.__overrideValve = False
+            self.closeValve()
+            
+    def openValve(self, thermostatOverride = None):
+        
         if thermostatOverride is not None:
             self.__burnerValve = thermostatOverride
             self.ui.burnerValveButton.setChecked(thermostatOverride)
-        else:
-            self.__burnerValve = not self.__burnerValve
+            
+        self.ui.burnerValveLabel.show()
+        GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.LOW)
+        self.notify(MSG["valve_on"])
         
-        if self.__burnerValve:
-            self.ui.burnerValveLabel.show()
-            GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.LOW)
-            self.notify(MSG["valve_on"])
-        else:
-            self.ui.burnerValveLabel.hide()
-            GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.HIGH)
-            self.notify(MSG["valve_off"])
+    def closeValve(self, thermostatOverride = None):
         
+        if thermostatOverride is not None:
+            self.__burnerValve = thermostatOverride
+            self.ui.burnerValveButton.setChecked(thermostatOverride)
+            
+        self.ui.burnerValveLabel.hide()
+        GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.HIGH)
+        self.notify(MSG["valve_off"])
+        
+    def thermostatCalling(self):
+        """
+        Whether the burner should be ON or OFF.
+        Returns True if SetPoint is greater than current internal temperature
+        """
+        return self.getSetPoint() > self.getOvenTemp()
+    
     def toggleLight(self):
         self.__light = not self.__light
 

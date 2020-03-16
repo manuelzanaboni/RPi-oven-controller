@@ -104,8 +104,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.settings_chartsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
 
     def toggleBurner(self):
-        self.controller.toggleBurner()
-        self.manageBurnerButtonAndLabel(not self.fireMovie.state())
+        if self.controller.thermostatCalling():
+            self.controller.toggleBurner()
+            self.manageBurnerButtonAndLabel(not self.fireMovie.state())
             
     def manageBurnerButtonAndLabel(self, state):
         if state:

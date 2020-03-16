@@ -19,7 +19,8 @@ class SensReader(Thread):
         self.floorThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS2, PIN.SO2)
         self.pufferThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS3, PIN.SO3)
         self.fumesThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS4, PIN.SO4)
-        self.pressionSensor = BMP085.BMP085()
+        self.pressionSensor = BMP085.BMP085(busnum=1)
+        #self.gasSensor = BMP085.BMP085(busnum=4)
         
         self.stop = False
 

@@ -7,6 +7,7 @@ import RPi.GPIO as GPIO
 
 import utils.default_gpio as PIN
 from utils.messages import BURNER_CONTROLLER_MSGS as MSG
+from .upper_checker import UpperChecker
 
 SLEEP_TIME = 3 # (seconds) overall sleep time
 PRESSION_CHECK_SLEEP = 10 # (seconds) sleep time after burner startup
@@ -20,6 +21,8 @@ class BurnerController(Thread):
         self.paused = True # Start out paused.
         self.state = Condition()        
         self.stop = False
+        
+        self.__threads = []
         
     def resume(self):
         with self.state:
@@ -38,13 +41,6 @@ class BurnerController(Thread):
         Method called on application exit.
         """
         self.stop = True
-        
-    def thermostatCalling(self):
-        """
-        Whether the burner should be ON or OFF.
-        Returns True if SetPoint is greater than current internal temperature
-        """
-        return self.controller.getSetPoint() > self.controller.getOvenTemp()
     
     def getBurnerState(self):
         """
@@ -97,10 +93,10 @@ class BurnerController(Thread):
         """
         if ovenTemp >= lowerBound and ovenTemp <= (setPoint - TEMP_DELTA_TO_REACH_SETPOINT):
             if not valveState:
-                self.controller.toggleBurnerValve(thermostatOverride = True)
+                self.controller.openValve(thermostatOverride = True)
         else:
-            if valveState:
-                self.controller.toggleBurnerValve(thermostatOverride = False)
+            if not self.controller.getOverrideValve() and valveState:
+                self.controller.closeValve(thermostatOverride = False)
         
     def run(self):
         while not self.stop:                    
@@ -109,9 +105,11 @@ class BurnerController(Thread):
                     print("Thread paused, waiting to resume...")
                     self.state.wait()  # Block execution until notified.
             
+            print("executing")
+            
             if not self.stop: # skip execution if kill() has been called
                 
-                if self.thermostatCalling():
+                if self.controller.thermostatCalling():
                     """
                     Here thermostat is triggered, thus burner should be ON.
                     """
@@ -122,19 +120,19 @@ class BurnerController(Thread):
                         Check if pression is raised after burner startup.
                         """
                         self.turnBurnerOn()
-                        self.controller.toggleBurnerButtonEnabled(False)
+                        #self.controller.toggleBurnerButtonEnabled(False)
                         self.controller.notify(MSG["burner_startup"], 5000)
                         
-                        time.sleep(PRESSION_CHECK_SLEEP)
+                        #time.sleep(PRESSION_CHECK_SLEEP)
                         
-                        self.checkPression()
+                        #self.checkPression()
                     else:
                         """
                         Burner is already ON.
                         Keep checking pression.
                         Open/Close burner valve according to operating curve.
                         """
-                        self.checkPression()
+                        #self.checkPression()
                         self.manageBurnerValve()
                         
                 else:
@@ -145,6 +143,10 @@ class BurnerController(Thread):
                         self.pause()
                         self.controller.manageBurnerButtonAndLabel(False)
                         self.controller.notify(MSG["temp_reached"])
+                        
+                        upperChecker = UpperChecker(controller = self.controller, burner_controller = self)
+                        self.__threads.append(upperChecker)
+                        upperChecker.start()
             
             if not self.paused:
                 """
@@ -153,5 +155,12 @@ class BurnerController(Thread):
                 (this avoid the need to disable burner button, in order to prevent fault)
                 """
                 time.sleep(SLEEP_TIME)
+                
+                
+        for thread in self.__threads:
+            if thread.is_alive():
+                thread.kill()
+                
+            thread.join()
             
         print("Stopping thread")

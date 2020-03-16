@@ -18,5 +18,6 @@
         <file>../resources/burnerValveOff.png</file>
         <file>../resources/burnerValveOn.png</file>
         <file>../resources/burnerValveFlame.png</file>
+        <file>../resources/background.png</file>
     </qresource>
 </RCC>

@@ -230,7 +230,7 @@
        <rect>
         <x>540</x>
         <y>290</y>
-        <width>78</width>
+        <width>86</width>
         <height>111</height>
        </rect>
       </property>
@@ -788,7 +788,7 @@
        <rect>
         <x>630</x>
         <y>290</y>
-        <width>78</width>
+        <width>86</width>
         <height>111</height>
        </rect>
       </property>
@@ -1039,7 +1039,7 @@
           <enum>QFrame::Raised</enum>
          </property>
          <property name="digitCount">
-          <number>3</number>
+          <number>4</number>
          </property>
         </widget>
        </item>
@@ -1235,7 +1235,7 @@
           <enum>QFrame::Raised</enum>
          </property>
          <property name="digitCount">
-          <number>3</number>
+          <number>4</number>
          </property>
         </widget>
        </item>

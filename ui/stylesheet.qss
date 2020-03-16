@@ -1,3 +1,7 @@
+QMainWindow {
+    background-image: url("resources/background.png")
+}
+
 QLCDNumber#thermostatLCD {
     color: #ED1B24;
 }
@@ -49,5 +53,16 @@ QPushButton#externalOpeningButton:checked,
 QPushButton#alexaButton:checked,
 QPushButton#burnerValveButton:checked {
     background-color: rgba(255,255,255,0);
+    border-radius: 10px;
+}
+
+
+QPushButton#controller_settingsButton,
+QPushButton#controller_chartsButton,
+QPushButton#charts_settingsButton,
+QPushButton#charts_controllerButton,
+QPushButton#settings_controllerButton,
+QPushButton#settings_chartsButton {
+    background-color: #D9CFBF;
     border-radius: 10px;
 }
