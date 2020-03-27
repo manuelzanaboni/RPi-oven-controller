@@ -10,6 +10,8 @@ import Adafruit_BMP.BMP085 as BMP085
 import utils.default_gpio as PIN
 from utils.messages import SENS_READER_MSGS as MSG
 
+SLEEP_TIME = 3
+
 class SensReader(Thread):
     def __init__(self, controller):
         super(SensReader, self).__init__()
@@ -66,4 +68,4 @@ class SensReader(Thread):
             # con.close()
 
             self.controller.setData(ovenTemp, floorTemp, pufferTemp, fumesTemp, delta)
-            time.sleep(3)
+            time.sleep(SLEEP_TIME)

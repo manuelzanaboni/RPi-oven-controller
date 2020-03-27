@@ -95,6 +95,9 @@
            <layout class="QVBoxLayout" name="verticalLayout1">
             <item>
              <widget class="QPushButton" name="increaseTimerButton">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -122,6 +125,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="decreaseTimerButton">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -160,6 +166,9 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
               <property name="text">
                <string>Avvia</string>
               </property>
@@ -176,6 +185,9 @@
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
               </property>
               <property name="text">
                <string>Ferma</string>
@@ -196,6 +208,9 @@
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
               </property>
               <property name="text">
                <string>Reset</string>
@@ -260,6 +275,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="internalOpeningButton">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -340,6 +358,9 @@
        <layout class="QHBoxLayout" name="horizontalLayout5">
         <item>
          <widget class="QPushButton" name="decrementThermostatButton">
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -376,6 +397,9 @@
         </item>
         <item>
          <widget class="QSlider" name="horizontalSlider">
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="minimum">
            <number>100</number>
           </property>
@@ -398,6 +422,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="incrementThermostatButton">
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -529,33 +556,11 @@
        </layout>
       </widget>
      </widget>
-     <widget class="QLabel" name="burnerValveLabel">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="geometry">
-       <rect>
-        <x>810</x>
-        <y>350</y>
-        <width>41</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap resource="resources.qrc">:/resources/burnerValveFlame.png</pixmap>
-      </property>
-      <property name="scaledContents">
-       <bool>true</bool>
-      </property>
-     </widget>
      <widget class="Line" name="line_3">
       <property name="geometry">
        <rect>
         <x>530</x>
-        <y>190</y>
+        <y>200</y>
         <width>491</width>
         <height>20</height>
        </rect>
@@ -665,6 +670,9 @@
         <width>76</width>
         <height>70</height>
        </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
        <string/>
@@ -818,6 +826,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="externalOpeningButton">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -857,6 +868,9 @@
         <height>70</height>
        </rect>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -887,6 +901,9 @@
         <width>86</width>
         <height>80</height>
        </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
        <string/>
@@ -921,6 +938,9 @@
         <height>70</height>
        </rect>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -951,7 +971,7 @@
      <widget class="Line" name="line_2">
       <property name="geometry">
        <rect>
-        <x>520</x>
+        <x>530</x>
         <y>10</y>
         <width>16</width>
         <height>551</height>
@@ -1156,7 +1176,7 @@
       <property name="geometry">
        <rect>
         <x>7</x>
-        <y>370</y>
+        <y>380</y>
         <width>521</width>
         <height>20</height>
        </rect>
@@ -1357,6 +1377,9 @@
         <height>70</height>
        </rect>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -1400,6 +1423,9 @@
         <bold>true</bold>
        </font>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string>Impostazioni</string>
       </property>
@@ -1423,11 +1449,27 @@
         <bold>true</bold>
        </font>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string>Grafici</string>
       </property>
       <property name="flat">
        <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="burnerValveLabel">
+      <property name="geometry">
+       <rect>
+        <x>820</x>
+        <y>370</y>
+        <width>54</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
       </property>
      </widget>
     </widget>
@@ -1447,6 +1489,9 @@
         <weight>75</weight>
         <bold>true</bold>
        </font>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
        <string>Controller</string>
@@ -1470,6 +1515,9 @@
         <weight>75</weight>
         <bold>true</bold>
        </font>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
        <string>Impostazioni</string>
@@ -1507,6 +1555,9 @@
         <height>70</height>
        </rect>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -1542,6 +1593,9 @@
         <width>91</width>
         <height>81</height>
        </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
        <string/>
@@ -1586,6 +1640,9 @@
         <bold>true</bold>
        </font>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string>Grafici</string>
       </property>
@@ -1608,6 +1665,9 @@
         <weight>75</weight>
         <bold>true</bold>
        </font>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
        <string>Controller</string>

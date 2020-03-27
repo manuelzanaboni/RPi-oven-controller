@@ -127,8 +127,8 @@ class OvenController(object):
         if thermostatOverride is not None:
             self.__burnerValve = thermostatOverride
             self.ui.burnerValveButton.setChecked(thermostatOverride)
+            self.ui.manageValveLabel(state = self.__burnerValve)
             
-        self.ui.burnerValveLabel.show()
         GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.LOW)
         self.notify(MSG["valve_on"])
         
@@ -137,8 +137,8 @@ class OvenController(object):
         if thermostatOverride is not None:
             self.__burnerValve = thermostatOverride
             self.ui.burnerValveButton.setChecked(thermostatOverride)
+            self.ui.manageValveLabel(state = self.__burnerValve)
             
-        self.ui.burnerValveLabel.hide()
         GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.HIGH)
         self.notify(MSG["valve_off"])
         

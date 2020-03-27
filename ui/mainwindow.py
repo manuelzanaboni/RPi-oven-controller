@@ -15,23 +15,28 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, **kwargs):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
-        self.controller = OvenController(self)  # set controller
+        """ Assign main controller """
+        self.controller = OvenController(self)
 
+        """ Timer initialization """
         self.timerSeconds = 0
         self.timer = QtCore.QTimer(parent = self)
         self.timerLCD.display("{0:02d}:{1:02d}".format(0, 0))
 
         self.fanMovie = QtGui.QMovie(":/resources/fan.gif", parent = self)
         
-        self.burnerLabel.setGeometry(QtCore.QRect(840, 210, 150, 200))
-        self.burnerLabel.setText("")
-        self.burnerLabel.setObjectName("burnerLabel")
-
+        """  Burner movie management """
+        self.burnerLabel.setGeometry(QtCore.QRect(850, 215, 150, 175))
         self.fireMovie = QtGui.QMovie(":/resources/fire.gif", parent = self)
-        self.fireMovie.setScaledSize(QtCore.QSize(160, 160))
+        self.fireMovie.setScaledSize(QtCore.QSize(150, 175))
         self.burnerLabel.setMovie(self.fireMovie)
         self.burnerLabel.hide()
         
+        """  Burner valve movie management """
+        self.burnerValveLabel.setGeometry(QtCore.QRect(800, 290, 75, 100))
+        self.valveFireMovie = QtGui.QMovie(":/resources/fire.gif", parent = self)
+        self.valveFireMovie.setScaledSize(QtCore.QSize(75, 100))
+        self.burnerValveLabel.setMovie(self.valveFireMovie)
         self.burnerValveLabel.hide()
         
         self.connectActions()
@@ -118,6 +123,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     
     def toggleBurnerValve(self):
         self.controller.toggleBurnerValve()
+        self.manageValveLabel(not self.valveFireMovie.state())
+        
+    def manageValveLabel(self, state):
+        if state:
+            self.valveFireMovie.start()
+            self.burnerValveLabel.show()
+        else:
+            self.valveFireMovie.stop()
+            self.burnerValveLabel.hide()
 
     def toggleLight(self):
         self.controller.toggleLight()
@@ -181,15 +195,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.statusbar.setStyleSheet("font: 20px bold; color: #ED1B24;")
         self.statusbar.showMessage(message, time)
 
-############# TIMER MANAGER #############
+        """ Timer manager """
     def add10(self):
         self.timerSeconds += 10
-        self.updateLCD()        
-    
+        self.updateLCD()
+
     def subtract10(self):
         if self.timerSeconds >= 10:
             self.timerSeconds -= 10
-            self.updateLCD()
+        else:
+            self.timerSeconds = 0
+        self.updateLCD()
 
     def updateLCD(self):
         min = self.timerSeconds // 60
@@ -213,4 +229,4 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer.stop()
         self.timerSeconds = 0
         self.updateLCD()
-#######################################
+    """ End timer manager """

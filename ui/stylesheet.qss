@@ -1,16 +1,33 @@
 QMainWindow {
-    background-image: url("resources/background.png")
+    background-image: url("resources/background-polar.png")
 }
 
 QLCDNumber#thermostatLCD {
     color: #ED1B24;
 }
 
+QFrame#ovenLCD,
+QFrame#floorLCD,
+QFrame#pufferLCD,
+QFrame#fumesLCD,
+QFrame#pressionLCD,
+QFrame#gasLCD,
 QFrame#timerFrame,
-QFrame#thermostatFrame{
-    border: 1px solid grey;
+QFrame#thermostatFrame {
+    border: 2px solid #D9CFBF;
     border-radius: 5px;
-    font: italic;
+}
+
+QFrame#line_2 {
+    border: 1px solid #D9CFBF;
+    max-width: 0px;
+}
+
+
+QFrame#line,
+QFrame#line_3 {
+    border: 1px solid #D9CFBF;
+    max-height: 0px;
 }
 
 QPushButton#startTimerButton,

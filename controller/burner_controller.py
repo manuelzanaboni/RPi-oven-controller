@@ -75,10 +75,7 @@ class BurnerController(Thread):
             self.controller.toggleBurnerButtonEnabled(True)
             
     def manageBurnerValve(self): #TODO
-        """
-        Stage1 - setPoint >= 150, t = 100 apri valvola
-        Stage2 - setPoint - 30 chiudi valvola
-        """
+
         ovenTemp = self.controller.getOvenTemp()
         lowerBound = self.controller.getLowerThermostatBound()
         setPoint = self.controller.getSetPoint()
@@ -105,7 +102,7 @@ class BurnerController(Thread):
                     print("Thread paused, waiting to resume...")
                     self.state.wait()  # Block execution until notified.
             
-            print("executing")
+            #print("executing")
             
             if not self.stop: # skip execution if kill() has been called
                 
