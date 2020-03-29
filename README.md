@@ -30,6 +30,7 @@ python3 main.py
 ## Folder structure
 
     .
+    ├── components           # Auxiliary components (custom implementation of existing components)
     ├── controller           # Application logic files
     ├── resources            # Application resources
     ├── ui                   # Graphical user interface files
