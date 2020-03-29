@@ -18,6 +18,12 @@ QFrame#thermostatFrame {
     border-radius: 5px;
 }
 
+QLineEdit {
+    background: #D9CFBF;
+    border-radius: 5px;
+    border: 1px solid #BfB6A6;
+}
+
 QFrame#line_2 {
     border: 1px solid #D9CFBF;
     max-width: 0px;
@@ -79,7 +85,41 @@ QPushButton#controller_chartsButton,
 QPushButton#charts_settingsButton,
 QPushButton#charts_controllerButton,
 QPushButton#settings_controllerButton,
-QPushButton#settings_chartsButton {
+QPushButton#settings_chartsButton,
+QPushButton#button0,
+QPushButton#button1,
+QPushButton#button2,
+QPushButton#button3,
+QPushButton#button4,
+QPushButton#button5,
+QPushButton#button6,
+QPushButton#button7,
+QPushButton#button8,
+QPushButton#button9,
+QPushButton#buttonDel,
+QPushButton#buttonOk {
     background-color: #D9CFBF;
     border-radius: 10px;
+    border: 1px solid #BfB6A6;
+}
+
+QPushButton#controller_settingsButton:pressed,
+QPushButton#controller_chartsButton:pressed,
+QPushButton#charts_settingsButton:pressed,
+QPushButton#charts_controllerButton:pressed,
+QPushButton#settings_controllerButton:pressed,
+QPushButton#settings_chartsButton:pressed,
+QPushButton#button0:pressed,
+QPushButton#button1:pressed,
+QPushButton#button2:pressed,
+QPushButton#button3:pressed,
+QPushButton#button4:pressed,
+QPushButton#button5:pressed,
+QPushButton#button6:pressed,
+QPushButton#button7:pressed,
+QPushButton#button8:pressed,
+QPushButton#button9:pressed,
+QPushButton#buttonDel:pressed,
+QPushButton#buttonOk:pressed {
+    background-color: #BfB6A6; 
 }

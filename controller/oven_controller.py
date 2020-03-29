@@ -15,18 +15,19 @@ AUDIO_PATH = 'resources/audio.mp3' # where to find audio file to be played
 UPPER_SAFETY_PRESSION_THRESHOLD = 500 # (Pa) delta pression threshold. if greater, burner must turn off.
 
 class OvenController(object):
-    def __init__(self, ui):
+    def __init__(self, ui, config):
         self.ui = ui
-
+        self.config = config
+        
         self.__ovenTemp = 0 # holds oven internal temperature
         self.__floorTemp = 0 # holds oven's floor temperature
         self.__pufferTemp = 0 # holds puffer temperature (water)
         self.__fumesTemp = 0 # holds exhaust fumes temperture
         self.__deltaPression = 0 # holds pression variation
         
-        self.__setPoint = self.ui.horizontalSlider.minimum() # system set point
+        self.__setPoint = self.ui.horizontalSlider.value() # system set point
 
-        # state variables
+        """ state variables """
         self.__burner = False
         self.__burnerValve = False
         self.__overrideValve = None
@@ -35,7 +36,7 @@ class OvenController(object):
         self.__burnerFan = False
         self.__externalOpening = False
 
-        # initialize Relay GPIO
+        """ initialize Relay GPIO """
         GPIO.setmode(GPIO.BCM)
         gpioList = [PIN.RELAY1_BURNER, PIN.RELAY2_BURNER_VALVE, PIN.RELAY3_BURNER_FAN,
                     PIN.RELAY4_LIGHT, PIN.RELAY5_STEAM, PIN.RELAY6_INT_OPENING,
@@ -44,7 +45,7 @@ class OvenController(object):
             GPIO.setup(i, GPIO.OUT)
             GPIO.output(i, GPIO.HIGH)
 
-        # threads
+        """ threads """
         self.__threads = []
 
         self.__burnerController = BurnerController(controller = self)
@@ -102,6 +103,9 @@ class OvenController(object):
                 self.notifyCritical(MSG["burner_blockage"])
                 self.manageBurnerButtonAndLabel(False)
                 self.__burnerController.pause()
+                
+    def setConfig(self, config):
+        self.config = config
 
     def toggleBurner(self):
         self.__burner = not self.__burner

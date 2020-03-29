@@ -5,6 +5,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from .oven_ui import Ui_MainWindow
 from controller.oven_controller import OvenController
+from components.switch import Switch
+from components.settings_field import SettingsField
 import math
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -16,7 +18,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
         """ Assign main controller """
-        self.controller = OvenController(self)
+        self.config = {}
 
         """ Timer initialization """
         self.timerSeconds = 0
@@ -39,6 +41,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.burnerValveLabel.setMovie(self.valveFireMovie)
         self.burnerValveLabel.hide()
         
+        """ Settings fields management """
+        self.settingsFieldToEdit = None # holds reference of the focused field
+        self.initialFieldsValues = {} # holds values of fields before the edit
+        self.keypadFrame.hide()
+        self.initializeSettingsFields()
+        
+        """ Populate config dictionary """
+        try:
+            self.config["checkPression"] = self.pressionSwitch.isChecked()
+            self.config["inputPressionThreshold"] = int(self.inputPressionThreshold.text())
+            self.config["persistData"] = self.persistDataSwitch.isChecked()
+            self.config["inputValveThreshold"] = int(self.inputValveThreshold.text())
+            self.config["inputInternalOpeningTime"] = int(self.inputInternalOpeningTime.text())
+            self.config["inputUpperCheckerTime"] = int(self.inputUpperCheckerTime.text())
+        except ValueError:
+            raise RuntimeError('Could not cast config values.')
+            
+        self.controller = OvenController(ui = self, config = self.config)
+        
         self.connectActions()
         
     @pyqtSlot(str, bool, int)
@@ -51,6 +72,40 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     @pyqtSlot(bool)
     def manageBurnerSlot(self, state):
         self.manageBurnerButtonAndLabel(state)
+        
+    def initializeSettingsFields(self):
+        #todo: customize switch
+        self.pressionSwitch = Switch(thumb_radius=8, track_radius=11, parent = self)
+        self.pressionSwitch.setChecked(True)
+        self.settingsLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.pressionSwitch)            
+            
+        self.inputPressionThreshold = SettingsField(ui = self)
+        self.inputPressionThreshold.setText("30")
+        self.inputPressionThreshold.setCursorPosition(2)
+        self.inputPressionThreshold.setObjectName("inputPressionThreshold")
+        self.settingsLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.inputPressionThreshold)
+        
+        self.persistDataSwitch = Switch(thumb_radius=8, track_radius=11, parent = self)
+        self.persistDataSwitch.setChecked(True)
+        self.settingsLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.persistDataSwitch)
+        
+        self.inputValveThreshold = SettingsField(ui = self)
+        self.inputValveThreshold.setText("30")
+        self.inputValveThreshold.setCursorPosition(2)
+        self.inputValveThreshold.setObjectName("inputValveThreshold")
+        self.settingsLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.inputValveThreshold)
+        
+        self.inputInternalOpeningTime = SettingsField(ui = self)
+        self.inputInternalOpeningTime.setText("5")
+        self.inputInternalOpeningTime.setCursorPosition(1)
+        self.inputInternalOpeningTime.setObjectName("inputInternalOpeningTime")
+        self.settingsLayout.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.inputInternalOpeningTime)
+        
+        self.inputUpperCheckerTime = SettingsField(ui = self)
+        self.inputUpperCheckerTime.setText("120")
+        self.inputUpperCheckerTime.setCursorPosition(3)
+        self.inputUpperCheckerTime.setObjectName("inputUpperCheckerTime")
+        self.settingsLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.inputUpperCheckerTime)
         
     def connectActions(self):
         """
@@ -83,10 +138,32 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.horizontalSlider.sliderReleased.connect(self.setThermostatTemp)
         self.incrementThermostatButton.pressed.connect(self.incrementThermostat)
         self.decrementThermostatButton.pressed.connect(self.decrementThermostat)
-
+        
         self.alexaButton.clicked.connect(self.toggleAlexa)
 
         self.quitButton.clicked.connect(self.close)
+        
+        """ settings fields """
+        self.pressionSwitch.toggled.connect(lambda state: self.pressionSwitchToggled(state))
+        self.persistDataSwitch.toggled.connect(lambda state: self.persistDataSwitchToggled(state))
+        """
+        self.inputPressionThreshold, self.inputValveThreshold, self.inputInternalOpeningTime, self.inputUpperCheckerTime
+        have been managed with custom QLineEdit, see SettingsField
+        """
+        
+        """ Keypad connections """
+        self.button0.clicked.connect(lambda: self.settingsFieldToEdit.insert("0"))
+        self.button1.clicked.connect(lambda: self.settingsFieldToEdit.insert("1"))
+        self.button2.clicked.connect(lambda: self.settingsFieldToEdit.insert("2"))
+        self.button3.clicked.connect(lambda: self.settingsFieldToEdit.insert("3"))
+        self.button4.clicked.connect(lambda: self.settingsFieldToEdit.insert("4"))
+        self.button5.clicked.connect(lambda: self.settingsFieldToEdit.insert("5"))
+        self.button6.clicked.connect(lambda: self.settingsFieldToEdit.insert("6"))
+        self.button7.clicked.connect(lambda: self.settingsFieldToEdit.insert("7"))
+        self.button8.clicked.connect(lambda: self.settingsFieldToEdit.insert("8"))
+        self.button9.clicked.connect(lambda: self.settingsFieldToEdit.insert("9"))
+        self.buttonDel.clicked.connect(lambda: self.settingsFieldToEdit.backspace())
+        self.buttonOk.clicked.connect(self.confirmEdit)  
 
         """
         timer connections
@@ -135,7 +212,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def toggleLight(self):
         self.controller.toggleLight()
-
+        
     def toggleSteam(self):
         self.controller.toggleSteam()
 
@@ -178,6 +255,53 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.horizontalSlider.setValue(value)
             self.setThermostatTemp()
 
+    def pressionSwitchToggled(self, state):
+        self.inputPressionThreshold.setEnabled(state)
+        self.config["checkPression"] = state
+        self.controller.setConfig(self.config)
+        
+    def persistDataSwitchToggled(self, state):
+        self.config["persistData"] = state
+        self.controller.setConfig(self.config)
+    
+    def settingsFieldFocused(self, field):
+        self.settingsFieldToEdit = field
+        
+        if field is self.inputPressionThreshold and "inputPressionThreshold" not in self.initialFieldsValues:
+            self.initialFieldsValues["inputPressionThreshold"] = (self.inputPressionThreshold, self.inputPressionThreshold.text())
+        
+        elif field is self.inputValveThreshold and "inputValveThreshold" not in self.initialFieldsValues:
+            self.initialFieldsValues["inputValveThreshold"] = (self.inputValveThreshold, self.inputValveThreshold.text())
+            
+        elif field is self.inputInternalOpeningTime and "inputInternalOpeningTime" not in self.initialFieldsValues:
+            self.initialFieldsValues["inputInternalOpeningTime"] = (self.inputInternalOpeningTime, self.inputInternalOpeningTime.text())
+            
+        elif field is self.inputUpperCheckerTime and "inputUpperCheckerTime" not in self.initialFieldsValues:
+            self.initialFieldsValues["inputUpperCheckerTime"] = (self.inputUpperCheckerTime, self.inputUpperCheckerTime.text())
+        
+        if self.keypadFrame.isHidden():
+            self.keypadFrame.show()
+        
+    def confirmEdit(self):
+        if self.keypadFrame.isVisible():
+            self.keypadFrame.hide()
+        
+        for key in self.initialFieldsValues:
+            if self.initialFieldsValues[key][1] != self.initialFieldsValues[key][0].text():
+                self.updateConfig((key, self.initialFieldsValues[key][0].text()))
+        
+        self.controller.setConfig(self.config)
+        
+        self.settingsFieldToEdit = None
+        self.initialFieldsValues = {}
+        
+    def updateConfig(self, data):
+        try:
+            value = int(data[1])
+            self.config[data[0]] = value
+        except ValueError:
+            raise RuntimeError('Could not cast config values during update.')
+        
     def closeEvent(self, event):    # TODO check errors
         reply = QtWidgets.QMessageBox.question(self, 'Chiudi', "Sei sicuro di chiudere l'applicazione?", 
         QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
