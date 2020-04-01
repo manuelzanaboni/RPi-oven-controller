@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
-
+        
 class SettingsField(QtWidgets.QLineEdit):
     
     def __init__(self, ui):
@@ -20,6 +20,7 @@ class SettingsField(QtWidgets.QLineEdit):
         self.setFrame(False)
         self.setAlignment(QtCore.Qt.AlignCenter)
         self.setPlaceholderText("")
+        self.setMaxLength(4)
         
     def focusInEvent(self, event):
         self.ui.settingsFieldFocused(field = self)

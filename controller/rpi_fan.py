@@ -7,10 +7,9 @@ import RPi.GPIO as GPIO
 import subprocess
 
 import utils.default_gpio as PIN
-from utils.messages import RPI_FAN_MSGS as MSG
 
-ON_THRESHOLD = 42  # (degrees Celsius) Fan kicks on at this temperature.
-OFF_THRESHOLD = 38  # (degress Celsius) Fan shuts off at this temperature.
+ON_THRESHOLD = 45  # (degrees Celsius) Fan kicks on at this temperature.
+OFF_THRESHOLD = 39  # (degress Celsius) Fan shuts off at this temperature.
 SLEEP_INTERVAL = 5  # (seconds) How often we check the core temperature.
 
 class FanController(Thread):
@@ -45,9 +44,7 @@ class FanController(Thread):
 
             if temp > ON_THRESHOLD and pinState:
                 GPIO.output(PIN.RELAY8_RPI_FAN, GPIO.LOW)
-                self.controller.notify(MSG["fan_on"])
             elif not pinState and temp < OFF_THRESHOLD:
                 GPIO.output(PIN.RELAY8_RPI_FAN, GPIO.HIGH)
-                self.controller.notify(MSG["fan_off"])
                 
             time.sleep(SLEEP_INTERVAL)

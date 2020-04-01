@@ -22,50 +22,80 @@ class SensReader(Thread):
         self.pufferThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS3, PIN.SO3)
         self.fumesThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS4, PIN.SO4)
         self.pressionSensor = BMP085.BMP085(busnum=1)
-        #self.gasSensor = BMP085.BMP085(busnum=4)
+        self.gasSensor = BMP085.BMP085(busnum=4)
         
         self.stop = False
 
     def kill(self):
         self.stop = True
         
-    def run(self):
+    def calibratePressionSensors(self):
+        
         sum = 0
-        self.controller.notify(MSG["calibration"], 2000)
         for i in range(10): 
             sum += self.pressionSensor.read_pressure()
             time.sleep(0.3)
         
-        mean = sum // 10
+        mean1 = sum // 10
+
+        sum = 0
+        for i in range(10): 
+            sum += self.gasSensor.read_pressure()
+            time.sleep(0.3)
+        
+        mean2 = sum // 10
+
+        return mean1, mean2
+        
+    def isNaN(self, val):
+        return val != val
+    
+    def run(self):
+        """ calibrate sensors"""
+        self.controller.notify(MSG["calibration"])
+        mean1, mean2 = self.calibratePressionSensors()
 
         self.controller.notify(MSG["startup"])
+        
         while not self.stop:
+            """ get data """
             ovenTemp = self.ovenThermocouple.readTempC()
             floorTemp = self.floorThermocouple.readTempC()
             pufferTemp = self.pufferThermocouple.readTempC()
             fumesTemp = self.fumesThermocouple.readTempC()
-            pression = self.pressionSensor.read_pressure()
             
-            delta = pression - mean
+            pression1 = self.pressionSensor.read_pressure()
+            delta1 = pression1 - mean1
+            
+            pression2 = self.gasSensor.read_pressure()
+            delta2 = pression2 - mean2
 
-            # DB signature
-            # TABLE OvenTemperatures(timestamp DATETIME, temp NUMERIC)
-            # TABLE FloorTemperatures(timestamp DATETIME, temp NUMERIC)
-            # TABLE PufferTemperatures(timestamp DATETIME, temp NUMERIC)
-            # TABLE FumesTemperatures(timestamp DATETIME, temp NUMERIC)
-            # TABLE OvenPression(timestamp DATETIME, pression NUMERIC)
+            """ display data """
+            self.controller.setData(ovenTemp, floorTemp, pufferTemp, fumesTemp, delta1, delta2)
 
-
-            # con = sqlite3.connect('oven.db')
-            # with con:
-            #     cur = con.cursor()
-                
-                # cur.execute("INSERT INTO OvenTemperatures VALUES(datetime('now','+1 hour'), " + str(x) + ")")
-                # cur.execute("INSERT INTO FloorTemperatures VALUES(datetime('now','+1 hour'), " + str(x) + ")")
-                # cur.execute("INSERT INTO PufferTemperatures VALUES(datetime('now','+1 hour'), " + str(x) + ")")
-                # cur.execute("INSERT INTO FumesTemperatures VALUES(datetime('now','+1 hour'), " + str(x) + ")")
-            #     con.commit()
-            # con.close()
-
-            self.controller.setData(ovenTemp, floorTemp, pufferTemp, fumesTemp, delta)
+            """ persist data """
+            if self.controller.config["persistData"]:
+                try:
+                    con = sqlite3.connect('oven.db')
+                    with con:
+                        cur = con.cursor()
+                        
+                        if not self.isNaN(ovenTemp):
+                            cur.execute("INSERT INTO OvenTemperatures VALUES(datetime('now', 'localtime'), " + str(ovenTemp) + ")")
+                            
+                        if not self.isNaN(floorTemp):
+                            cur.execute("INSERT INTO FloorTemperatures VALUES(datetime('now', 'localtime'), " + str(floorTemp) + ")")
+                            
+                        if not self.isNaN(pufferTemp):
+                            cur.execute("INSERT INTO PufferTemperatures VALUES(datetime('now', 'localtime'), " + str(pufferTemp) + ")")
+                            
+                        if not self.isNaN(fumesTemp):
+                            cur.execute("INSERT INTO FumesTemperatures VALUES(datetime('now', 'localtime'), " + str(fumesTemp) + ")")
+                            
+                        con.commit()
+                    con.close()
+                except:
+                    print("Couldn't write on DB")
+                    self.controller.notifyCritical(MSG["DB_error"])
+                    
             time.sleep(SLEEP_TIME)

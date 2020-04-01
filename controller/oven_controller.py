@@ -24,6 +24,7 @@ class OvenController(object):
         self.__pufferTemp = 0 # holds puffer temperature (water)
         self.__fumesTemp = 0 # holds exhaust fumes temperture
         self.__deltaPression = 0 # holds pression variation
+        self.__deltaGas = 0 # holds gas pression variation
         
         self.__setPoint = self.ui.horizontalSlider.value() # system set point
 
@@ -78,36 +79,69 @@ class OvenController(object):
     def getLowerThermostatBound(self):
         return self.ui.horizontalSlider.minimum()
 
-    def setData(self, ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression):
-        if ovenTemp is not None:
+    def setData(self, ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression, deltaGas):
+        if ovenTemp is not None and not self.isNaN(ovenTemp):
             self.__ovenTemp = ovenTemp
             self.ui.ovenLCD.display(self.__ovenTemp)
+        else:
+            self.__ovenTemp = 0
+            self.ui.ovenLCD.display("---")
 
-        if floorTemp is not None:
+        if floorTemp is not None and not self.isNaN(floorTemp):
             self.__floorTemp = floorTemp
             self.ui.floorLCD.display(self.__floorTemp)
+        else:
+            self.__floorTemp = 0
+            self.ui.floorLCD.display("---")
 
-        if pufferTemp is not None:
+        if pufferTemp is not None and not self.isNaN(pufferTemp):
             self.__pufferTemp = pufferTemp
             self.ui.pufferLCD.display(self.__pufferTemp)
+        else:
+            self.__pufferTemp = 0
+            self.ui.pufferLCD.display("---")
 
-        if fumesTemp is not None:
+        if fumesTemp is not None and not self.isNaN(fumesTemp):
             self.__fumesTemp = fumesTemp
             self.ui.fumesLCD.display(self.__fumesTemp)
+        else:
+            self.__fumesTemp = 0
+            self.ui.fumesLCD.display("---")
 
-        if deltaPression is not None:
+        if deltaPression is not None and not self.isNaN(deltaPression):
             self.__deltaPression = deltaPression
             self.ui.pressionLCD.display(self.__deltaPression)
             
-            if self.__deltaPression >= UPPER_SAFETY_PRESSION_THRESHOLD: # react to possible blockage
+            if self.__burner and self.__deltaPression >= UPPER_SAFETY_PRESSION_THRESHOLD: # react to possible blockage
                 self.notifyCritical(MSG["burner_blockage"])
                 self.manageBurnerButtonAndLabel(False)
                 self.__burnerController.pause()
+        else:
+            self.__deltaPression = 0
+            self.ui.pressionLCD.display("----")
+            
+        if deltaGas is not None and not self.isNaN(deltaGas):
+            self.__deltaGas = deltaGas
+            self.ui.gasLCD.display(self.__deltaGas)
+        else:
+            self.__deltaGas = 0
+            self.ui.gasLCD.display("----")
                 
     def setConfig(self, config):
         self.config = config
 
+    def isNaN(self, val):
+        return val != val
+    
     def toggleBurner(self):
+        """ Turn OFF steam and burner Fan if active, before starting burner """
+        if not self.__burner and self.__steam:
+            self.toggleSteam()
+            
+        if not self.__burner and self.__burnerFan:
+            self.ui.toggleFan()
+        
+        """ Manage burner """
         self.__burner = not self.__burner
         
         if self.__burner:
@@ -164,23 +198,32 @@ class OvenController(object):
             self.notify(MSG["light_off"])
 
     def toggleSteam(self):
-        self.__steam = not self.__steam
+        if not self.__burner: 
+            self.__steam = not self.__steam
 
-        if self.__steam:
-            GPIO.output(PIN.RELAY5_STEAM, GPIO.LOW)
-            self.notify(MSG["release_steam"])
+            if self.__steam:
+                GPIO.output(PIN.RELAY5_STEAM, GPIO.LOW)
+                self.notify(MSG["release_steam"])
+            else:
+                GPIO.output(PIN.RELAY5_STEAM, GPIO.HIGH)
         else:
-            GPIO.output(PIN.RELAY5_STEAM, GPIO.HIGH)
+            self.notifyCritical(MSG["function_disabled"])
 
     def toggleBurnerFan(self):
-        self.__burnerFan = not self.__burnerFan
+        if not self.__burner:
+            self.__burnerFan = not self.__burnerFan
 
-        if self.__burnerFan:
-            GPIO.output(PIN.RELAY3_BURNER_FAN, GPIO.LOW)
-            self.notify(MSG["fan_on"])
+            if self.__burnerFan:
+                GPIO.output(PIN.RELAY3_BURNER_FAN, GPIO.LOW)
+                self.notify(MSG["fan_on"])
+            else:
+                GPIO.output(PIN.RELAY3_BURNER_FAN, GPIO.HIGH)
+                self.notify(MSG["fan_off"])
+                
+            return True
         else:
-            GPIO.output(PIN.RELAY3_BURNER_FAN, GPIO.HIGH)
-            self.notify(MSG["fan_off"])
+            self.notifyCritical(MSG["function_disabled"])
+            return False
 
     def toggleInternalOpening(self):
         self.manageIntOpeningButton(False)

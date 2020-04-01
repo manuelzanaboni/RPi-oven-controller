@@ -11,8 +11,6 @@ from .upper_checker import UpperChecker
 
 SLEEP_TIME = 3 # (seconds) overall sleep time
 PRESSION_CHECK_SLEEP = 10 # (seconds) sleep time after burner startup
-PRESSION_DELTA_THRESHOLD = 30 # (Pa) minimum delta pression that the burner should generate
-TEMP_DELTA_TO_REACH_SETPOINT = 30 # (degress Celsius) setpoint valve fallback
 
 class BurnerController(Thread):
     def __init__(self, controller):
@@ -22,7 +20,8 @@ class BurnerController(Thread):
         self.state = Condition()        
         self.stop = False
         
-        self.__threads = []
+        self.upperChecker = UpperChecker(controller = self.controller, burner_controller = self)
+        self.upperChecker.start()
         
     def resume(self):
         with self.state:
@@ -66,7 +65,7 @@ class BurnerController(Thread):
         """
         This method checks if oven internal pression is increased after burner start-up.
         """            
-        if self.controller.getDeltaPression() < PRESSION_DELTA_THRESHOLD:
+        if self.controller.getDeltaPression() < self.controller.config["inputPressionThreshold"]:
             self.controller.manageBurnerButtonAndLabel(False)
             self.pause()
             self.controller.notifyCritical(MSG["blockage"])
@@ -80,15 +79,9 @@ class BurnerController(Thread):
         lowerBound = self.controller.getLowerThermostatBound()
         setPoint = self.controller.getSetPoint()
         valveState = self.controller.getBurnerValve()
+        delta = self.controller.config["inputValveThreshold"]
         
-        """
-        Al momento
-        apre a 100 gradi, chiude a setpoint - 30
-        setpoint tra 100 e 129 non apre
-        setpoint 130 apre...al ciclo dopo chiude
-        setpoint alto...tutto ok
-        """
-        if ovenTemp >= lowerBound and ovenTemp <= (setPoint - TEMP_DELTA_TO_REACH_SETPOINT):
+        if ovenTemp >= lowerBound and ovenTemp <= (setPoint - delta):
             if not valveState:
                 self.controller.openValve(thermostatOverride = True)
         else:
@@ -117,19 +110,22 @@ class BurnerController(Thread):
                         Check if pression is raised after burner startup.
                         """
                         self.turnBurnerOn()
-                        #self.controller.toggleBurnerButtonEnabled(False)
+
                         self.controller.notify(MSG["burner_startup"], 5000)
                         
-                        #time.sleep(PRESSION_CHECK_SLEEP)
-                        
-                        #self.checkPression()
+                        if self.controller.config["checkPression"]:
+                            self.controller.toggleBurnerButtonEnabled(False)
+                            time.sleep(PRESSION_CHECK_SLEEP)
+                            self.checkPression()
                     else:
                         """
                         Burner is already ON.
                         Keep checking pression.
                         Open/Close burner valve according to operating curve.
                         """
-                        #self.checkPression()
+                        if self.controller.config["checkPression"]:
+                            self.checkPression()
+
                         self.manageBurnerValve()
                         
                 else:
@@ -141,9 +137,8 @@ class BurnerController(Thread):
                         self.controller.manageBurnerButtonAndLabel(False)
                         self.controller.notify(MSG["temp_reached"])
                         
-                        upperChecker = UpperChecker(controller = self.controller, burner_controller = self)
-                        self.__threads.append(upperChecker)
-                        upperChecker.start()
+                        """ Start checking for upper tempererature """
+                        self.upperChecker.resume()
             
             if not self.paused:
                 """
@@ -154,10 +149,7 @@ class BurnerController(Thread):
                 time.sleep(SLEEP_TIME)
                 
                 
-        for thread in self.__threads:
-            if thread.is_alive():
-                thread.kill()
-                
-            thread.join()
+        if self.upperChecker.isAlive():
+            self.upperChecker.kill()
             
-        print("Stopping thread")
+        self.upperChecker.join()

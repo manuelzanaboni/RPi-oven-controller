@@ -17,7 +17,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, **kwargs):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
-        """ Assign main controller """
+        """ Configuration dictionary """
         self.config = {}
 
         """ Timer initialization """
@@ -58,6 +58,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         except ValueError:
             raise RuntimeError('Could not cast config values.')
             
+        """ Assign main controller """
         self.controller = OvenController(ui = self, config = self.config)
         
         self.connectActions()
@@ -108,9 +109,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.settingsLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.inputUpperCheckerTime)
         
     def connectActions(self):
-        """
-        Manage buttons' action
-        """
+        """ Manage buttons' action """
         self.notifySignal.connect(self.notifySlot)
         self.manageBurnerSignal.connect(self.manageBurnerSlot)
         
@@ -118,10 +117,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.burnerValveButton.clicked.connect(self.toggleBurnerValve)
 
-        self.lightButton.clicked.connect(self.toggleLight)
+        self.lightButton.clicked.connect(self.controller.toggleLight)
 
-        self.steamButton.pressed.connect(self.toggleSteam)
-        self.steamButton.released.connect(self.toggleSteam)
+        self.steamButton.pressed.connect(self.controller.toggleSteam)
+        self.steamButton.released.connect(self.controller.toggleSteam)
 
         self.fanMovie.frameChanged.connect(self.updateFanButton)
         self.fanMovie.start()
@@ -129,10 +128,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.fanButton.clicked.connect(self.toggleFan)
 
-        self.internalOpeningButton.clicked.connect(self.toggleInternalOpening)
+        self.internalOpeningButton.clicked.connect(self.controller.toggleInternalOpening)
 
-        self.externalOpeningButton.pressed.connect(self.toggleExternalOpening)
-        self.externalOpeningButton.released.connect(self.toggleExternalOpening)
+        self.externalOpeningButton.pressed.connect(self.controller.toggleExternalOpening)
+        self.externalOpeningButton.released.connect(self.controller.toggleExternalOpening)
 
         self.horizontalSlider.valueChanged['int'].connect(self.thermostatLCD.display)
         self.horizontalSlider.sliderReleased.connect(self.setThermostatTemp)
@@ -165,9 +164,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonDel.clicked.connect(lambda: self.settingsFieldToEdit.backspace())
         self.buttonOk.clicked.connect(self.confirmEdit)  
 
-        """
-        timer connections
-        """
+        """ timer connections """
         self.timer.timeout.connect(self.tick)
         self.decreaseTimerButton.clicked.connect(self.subtract10)
         self.increaseTimerButton.clicked.connect(self.add10)
@@ -175,9 +172,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.stopTimerButton.clicked.connect(self.timer.stop)
         self.resetTimerButton.clicked.connect(self.reset)
         
-        """
-        views linking
-        """
+        """ views linking """
         self.controller_settingsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
         self.controller_chartsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
         self.charts_settingsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
@@ -208,29 +203,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.burnerValveLabel.show()
         else:
             self.valveFireMovie.stop()
-            self.burnerValveLabel.hide()
-
-    def toggleLight(self):
-        self.controller.toggleLight()
-        
-    def toggleSteam(self):
-        self.controller.toggleSteam()
+            self.burnerValveLabel.hide()        
 
     def updateFanButton(self):
         self.fanButton.setIcon(QtGui.QIcon(self.fanMovie.currentPixmap()))
 
     def toggleFan(self):
-        self.controller.toggleBurnerFan()
-        if self.fanMovie.state():
-            self.fanMovie.stop()
-        else:
-            self.fanMovie.start()
-
-    def toggleInternalOpening(self):
-        self.controller.toggleInternalOpening()
-
-    def toggleExternalOpening(self):
-        self.controller.toggleExternalOpening()
+        ret = self.controller.toggleBurnerFan()
+        if ret:
+            if self.fanMovie.state():
+                self.fanMovie.stop()
+            else:
+                self.fanMovie.start()
 
     def toggleAlexa(self):  # TODO future feature
         pass
@@ -284,11 +268,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def confirmEdit(self):
         if self.keypadFrame.isVisible():
+            self.setFocus()
             self.keypadFrame.hide()
         
         for key in self.initialFieldsValues:
-            if self.initialFieldsValues[key][1] != self.initialFieldsValues[key][0].text():
-                self.updateConfig((key, self.initialFieldsValues[key][0].text()))
+            text = self.initialFieldsValues[key][0].text()
+            if self.initialFieldsValues[key][1] != text:
+                if text == '':
+                    self.initialFieldsValues[key][0].setText(self.initialFieldsValues[key][1])
+                else:
+                    self.updateConfig((key, self.initialFieldsValues[key][0].text()))
         
         self.controller.setConfig(self.config)
         
@@ -300,7 +289,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             value = int(data[1])
             self.config[data[0]] = value
         except ValueError:
-            raise RuntimeError('Could not cast config values during update.')
+            raise RuntimeError("Could not cast config values during update.")
         
     def closeEvent(self, event):    # TODO check errors
         reply = QtWidgets.QMessageBox.question(self, 'Chiudi', "Sei sicuro di chiudere l'applicazione?", 
