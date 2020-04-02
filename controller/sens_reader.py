@@ -21,8 +21,8 @@ class SensReader(Thread):
         self.floorThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS2, PIN.SO2)
         self.pufferThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS3, PIN.SO3)
         self.fumesThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS4, PIN.SO4)
-        self.pressionSensor = BMP085.BMP085(busnum=1)
-        self.gasSensor = BMP085.BMP085(busnum=4)
+        self.pressionSensor = BMP085.BMP085(busnum=1, mode=BMP085.BMP085_ULTRAHIGHRES)
+        self.gasSensor = BMP085.BMP085(busnum=4, mode=BMP085.BMP085_ULTRAHIGHRES)
         
         self.stop = False
 
@@ -80,19 +80,33 @@ class SensReader(Thread):
                     with con:
                         cur = con.cursor()
                         
+                        insert_string = "INSERT INTO Temperatures VALUES(datetime('now', 'localtime')"
+                        
                         if not self.isNaN(ovenTemp):
-                            cur.execute("INSERT INTO OvenTemperatures VALUES(datetime('now', 'localtime'), " + str(ovenTemp) + ")")
+                            insert_string += ", " + str(ovenTemp)
+                        else:
+                            insert_string += ", NULL"
                             
                         if not self.isNaN(floorTemp):
-                            cur.execute("INSERT INTO FloorTemperatures VALUES(datetime('now', 'localtime'), " + str(floorTemp) + ")")
+                            insert_string += ", " + str(floorTemp)
+                        else:
+                            insert_string += ", NULL"
                             
                         if not self.isNaN(pufferTemp):
-                            cur.execute("INSERT INTO PufferTemperatures VALUES(datetime('now', 'localtime'), " + str(pufferTemp) + ")")
+                            insert_string += ", " + str(pufferTemp)
+                        else:
+                            insert_string += ", NULL"
                             
                         if not self.isNaN(fumesTemp):
-                            cur.execute("INSERT INTO FumesTemperatures VALUES(datetime('now', 'localtime'), " + str(fumesTemp) + ")")
+                            insert_string += ", " + str(fumesTemp)
+                        else:
+                            insert_string += ", NULL"
                             
+                        insert_string += ")"
+                        
+                        cur.execute(insert_string)
                         con.commit()
+                        
                     con.close()
                 except:
                     print("Couldn't write on DB")
