@@ -75,35 +75,36 @@ class SensReader(Thread):
 
             """ persist data """
             if self.controller.config["persistData"]:
+                
+                """ Build query string """
+                insert_string = "INSERT INTO Temperatures VALUES(datetime('now', 'localtime')"
+                        
+                if not self.isNaN(ovenTemp):
+                    insert_string += ", " + str(ovenTemp)
+                else:
+                    insert_string += ", NULL"
+                    
+                if not self.isNaN(floorTemp):
+                    insert_string += ", " + str(floorTemp)
+                else:
+                    insert_string += ", NULL"
+                    
+                if not self.isNaN(pufferTemp):
+                    insert_string += ", " + str(pufferTemp)
+                else:
+                    insert_string += ", NULL"
+                    
+                if not self.isNaN(fumesTemp):
+                    insert_string += ", " + str(fumesTemp)
+                else:
+                    insert_string += ", NULL"
+                    
+                insert_string += ")"
+                        
                 try:
                     con = sqlite3.connect('oven.db')
                     with con:
-                        cur = con.cursor()
-                        
-                        insert_string = "INSERT INTO Temperatures VALUES(datetime('now', 'localtime')"
-                        
-                        if not self.isNaN(ovenTemp):
-                            insert_string += ", " + str(ovenTemp)
-                        else:
-                            insert_string += ", NULL"
-                            
-                        if not self.isNaN(floorTemp):
-                            insert_string += ", " + str(floorTemp)
-                        else:
-                            insert_string += ", NULL"
-                            
-                        if not self.isNaN(pufferTemp):
-                            insert_string += ", " + str(pufferTemp)
-                        else:
-                            insert_string += ", NULL"
-                            
-                        if not self.isNaN(fumesTemp):
-                            insert_string += ", " + str(fumesTemp)
-                        else:
-                            insert_string += ", NULL"
-                            
-                        insert_string += ")"
-                        
+                        cur = con.cursor()                        
                         cur.execute(insert_string)
                         con.commit()
                         

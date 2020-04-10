@@ -36,6 +36,7 @@ class OvenController(object):
         self.__steam = False
         self.__burnerFan = False
         self.__externalOpening = False
+        self.__realTime = False
 
         """ initialize Relay GPIO """
         GPIO.setmode(GPIO.BCM)
@@ -126,10 +127,17 @@ class OvenController(object):
         else:
             self.__deltaGas = 0
             self.ui.gasLCD.display("----")
+        
+        """ Send data to charts if real time is enabled """
+        if self.__realTime:
+            self.ui.chartsController.updateChartRealTime(ovenTemp, floorTemp, pufferTemp, fumesTemp)
                 
     def setConfig(self, config):
         self.config = config
 
+    def setRealTime(self, state):
+        self.__realTime = state
+        
     def isNaN(self, val):
         return val != val
     

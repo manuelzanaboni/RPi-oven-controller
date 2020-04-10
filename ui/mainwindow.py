@@ -5,6 +5,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from .oven_ui import Ui_MainWindow
 from controller.oven_controller import OvenController
+from controller.charts_controller import ChartsController
 from components.switch import Switch
 from components.settings_field import SettingsField
 import math
@@ -60,6 +61,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             
         """ Assign main controller """
         self.controller = OvenController(ui = self, config = self.config)
+        
+        """
+        Charts Controller manages charts page.
+        chartsLayout will be filled by that class.
+        """
+        self.chartsController = ChartsController(container = self.chartsLayout)
         
         self.connectActions()
         
@@ -172,6 +179,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.stopTimerButton.clicked.connect(self.timer.stop)
         self.resetTimerButton.clicked.connect(self.reset)
         
+        """ charts connections """
+        self.charts_ovenSerieButton.clicked.connect(lambda state: self.chartsController.toggleOvenSerie(state))
+        self.charts_floorSerieButton.clicked.connect(lambda state: self.chartsController.toggleFloorSerie(state))
+        self.charts_pufferSerieButton.clicked.connect(lambda state: self.chartsController.togglePufferSerie(state))
+        self.charts_fumesSerieButton.clicked.connect(lambda state: self.chartsController.toggleFumesSerie(state))
+        self.charts_realTimeButton.clicked.connect(lambda state: self.toggleRealTime(state))
+        self.charts_lastHourButton.clicked.connect(lambda: self.chartsController.draw(interval = "hour"))
+        self.charts_lastDayButton.clicked.connect(lambda: self.chartsController.draw(interval = "day"))
+        self.charts_lastWeekButton.clicked.connect(lambda: self.chartsController.draw(interval = "week"))
+        
         """ views linking """
         self.controller_settingsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
         self.controller_chartsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
@@ -179,7 +196,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.charts_controllerButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.settings_controllerButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.settings_chartsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
-
+        
     def toggleBurner(self):
         if self.controller.thermostatCalling():
             self.controller.toggleBurner()
@@ -247,6 +264,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def persistDataSwitchToggled(self, state):
         self.config["persistData"] = state
         self.controller.setConfig(self.config)
+        
+    def toggleRealTime(self, state):
+        self.charts_lastHourButton.setEnabled(not state)
+        self.charts_lastDayButton.setEnabled(not state)
+        self.charts_lastWeekButton.setEnabled(not state)
+
+        if state:
+            self.charts_realTimeButton.setText("Ferma tempo reale")
+        else:
+            self.charts_realTimeButton.setText("Tempo reale")
+            
+        self.controller.setRealTime(state)
+        self.chartsController.toggleRealTimeTracking(state)
+            
     
     def settingsFieldFocused(self, field):
         self.settingsFieldToEdit = field

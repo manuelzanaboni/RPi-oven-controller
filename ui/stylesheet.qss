@@ -31,7 +31,9 @@ QFrame#line_2 {
 
 
 QFrame#line,
-QFrame#line_3 {
+QFrame#line_3,
+QFrame#line_4,
+QFrame#line_5 {
     border: 1px solid #D9CFBF;
     max-height: 0px;
 }
@@ -84,6 +86,14 @@ QPushButton#controller_settingsButton,
 QPushButton#controller_chartsButton,
 QPushButton#charts_settingsButton,
 QPushButton#charts_controllerButton,
+QPushButton#charts_ovenSerieButton,
+QPushButton#charts_floorSerieButton,
+QPushButton#charts_pufferSerieButton,
+QPushButton#charts_fumesSerieButton,
+QPushButton#charts_realTimeButton,
+QPushButton#charts_lastHourButton,
+QPushButton#charts_lastDayButton,
+QPushButton#charts_lastWeekButton,
 QPushButton#settings_controllerButton,
 QPushButton#settings_chartsButton,
 QPushButton#button0,
@@ -107,6 +117,14 @@ QPushButton#controller_settingsButton:pressed,
 QPushButton#controller_chartsButton:pressed,
 QPushButton#charts_settingsButton:pressed,
 QPushButton#charts_controllerButton:pressed,
+QPushButton#charts_ovenSerieButton:checked,
+QPushButton#charts_floorSerieButton:checked,
+QPushButton#charts_pufferSerieButton:checked,
+QPushButton#charts_fumesSerieButton:checked,
+QPushButton#charts_realTimeButton:checked,
+QPushButton#charts_lastHourButton:pressed,
+QPushButton#charts_lastDayButton:pressed,
+QPushButton#charts_lastWeekButton:pressed,
 QPushButton#settings_controllerButton:pressed,
 QPushButton#settings_chartsButton:pressed,
 QPushButton#button0:pressed,
