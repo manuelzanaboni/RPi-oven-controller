@@ -35,7 +35,7 @@
        <rect>
         <x>10</x>
         <y>390</y>
-        <width>331</width>
+        <width>391</width>
         <height>171</height>
        </rect>
       </property>
@@ -48,13 +48,116 @@
       <widget class="QWidget" name="horizontalLayoutWidget_7">
        <property name="geometry">
         <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>331</width>
-         <height>171</height>
+         <x>10</x>
+         <y>10</y>
+         <width>371</width>
+         <height>151</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout7">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QPushButton" name="startTimerButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="text">
+             <string>Avvia</string>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="stopTimerButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="text">
+             <string>Ferma</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="resetTimerButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="text">
+             <string>Reset</string>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
         <item>
          <widget class="QLCDNumber" name="timerLCD">
           <property name="sizePolicy">
@@ -90,137 +193,66 @@
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout8">
+         <layout class="QVBoxLayout" name="verticalLayout1">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout1">
-            <item>
-             <widget class="QPushButton" name="increaseTimerButton">
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset>
-                <normalon>:/resources/plus.png</normalon>
-               </iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>56</width>
-                <height>56</height>
-               </size>
-              </property>
-              <property name="autoDefault">
-               <bool>false</bool>
-              </property>
-              <property name="default">
-               <bool>false</bool>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="decreaseTimerButton">
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset>
-                <normalon>:/resources/minus.png</normalon>
-               </iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>56</width>
-                <height>56</height>
-               </size>
-              </property>
-              <property name="autoDefault">
-               <bool>false</bool>
-              </property>
-              <property name="default">
-               <bool>false</bool>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <widget class="QPushButton" name="increaseTimerButton">
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normalon>:/resources/plus.png</normalon>
+             </iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>56</width>
+              <height>56</height>
+             </size>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout">
-            <item>
-             <widget class="QPushButton" name="startTimerButton">
-              <property name="font">
-               <font>
-                <pointsize>17</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="text">
-               <string>Avvia</string>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="stopTimerButton">
-              <property name="font">
-               <font>
-                <pointsize>17</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="text">
-               <string>Ferma</string>
-              </property>
-              <property name="autoDefault">
-               <bool>false</bool>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="resetTimerButton">
-              <property name="font">
-               <font>
-                <pointsize>17</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="text">
-               <string>Reset</string>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <widget class="QPushButton" name="decreaseTimerButton">
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normalon>:/resources/minus.png</normalon>
+             </iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>56</width>
+              <height>56</height>
+             </size>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -239,74 +271,6 @@
       <property name="text">
        <string/>
       </property>
-     </widget>
-     <widget class="QWidget" name="verticalLayoutWidget_3">
-      <property name="geometry">
-       <rect>
-        <x>540</x>
-        <y>290</y>
-        <width>86</width>
-        <height>111</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout3">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="intLabel">
-         <property name="font">
-          <font>
-           <pointsize>15</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="cursor">
-          <cursorShape>ArrowCursor</cursorShape>
-         </property>
-         <property name="text">
-          <string>INT</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="internalOpeningButton">
-         <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="resources.qrc">
-           <normaloff>:/resources/openingOpen.png</normaloff>
-           <normalon>:/resources/openingClose.png</normalon>:/resources/openingOpen.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>64</width>
-           <height>64</height>
-          </size>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>false</bool>
-         </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </widget>
      <widget class="QFrame" name="thermostatFrame">
       <property name="geometry">
@@ -559,9 +523,9 @@
      <widget class="Line" name="line_3">
       <property name="geometry">
        <rect>
-        <x>530</x>
+        <x>420</x>
         <y>200</y>
-        <width>491</width>
+        <width>591</width>
         <height>20</height>
        </rect>
       </property>
@@ -577,7 +541,7 @@
        <rect>
         <x>10</x>
         <y>100</y>
-        <width>501</width>
+        <width>391</width>
         <height>91</height>
        </rect>
       </property>
@@ -592,7 +556,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Temperatura platea</string>
+          <string>Sonda platea</string>
          </property>
          <property name="wordWrap">
           <bool>false</bool>
@@ -665,7 +629,7 @@
      <widget class="QPushButton" name="lightButton">
       <property name="geometry">
        <rect>
-        <x>540</x>
+        <x>510</x>
         <y>210</y>
         <width>76</width>
         <height>70</height>
@@ -706,7 +670,7 @@
        <rect>
         <x>10</x>
         <y>280</y>
-        <width>501</width>
+        <width>391</width>
         <height>91</height>
        </rect>
       </property>
@@ -721,7 +685,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Temperatura u. fumi</string>
+          <string>Sonda fumi</string>
          </property>
          <property name="wordWrap">
           <bool>false</bool>
@@ -791,78 +755,10 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="verticalLayoutWidget_4">
-      <property name="geometry">
-       <rect>
-        <x>630</x>
-        <y>290</y>
-        <width>86</width>
-        <height>111</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout4">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="estLabel">
-         <property name="font">
-          <font>
-           <pointsize>15</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="cursor">
-          <cursorShape>ArrowCursor</cursorShape>
-         </property>
-         <property name="text">
-          <string>EST</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="externalOpeningButton">
-         <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="resources.qrc">
-           <normaloff>:/resources/openingOpen.png</normaloff>
-           <normalon>:/resources/openingClose.png</normalon>:/resources/openingOpen.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>64</width>
-           <height>64</height>
-          </size>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>false</bool>
-         </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
      <widget class="QPushButton" name="fanButton">
       <property name="geometry">
        <rect>
-        <x>720</x>
+        <x>600</x>
         <y>210</y>
         <width>76</width>
         <height>70</height>
@@ -896,10 +792,10 @@
      <widget class="QPushButton" name="burnerButton">
       <property name="geometry">
        <rect>
-        <x>390</x>
-        <y>490</y>
-        <width>86</width>
-        <height>80</height>
+        <x>410</x>
+        <y>430</y>
+        <width>111</width>
+        <height>101</height>
        </rect>
       </property>
       <property name="focusPolicy">
@@ -915,8 +811,8 @@
       </property>
       <property name="iconSize">
        <size>
-        <width>64</width>
-        <height>64</height>
+        <width>120</width>
+        <height>120</height>
        </size>
       </property>
       <property name="autoDefault">
@@ -932,8 +828,8 @@
      <widget class="QPushButton" name="steamButton">
       <property name="geometry">
        <rect>
-        <x>630</x>
-        <y>210</y>
+        <x>510</x>
+        <y>310</y>
         <width>76</width>
         <height>70</height>
        </rect>
@@ -971,10 +867,10 @@
      <widget class="Line" name="line_2">
       <property name="geometry">
        <rect>
-        <x>530</x>
+        <x>400</x>
         <y>10</y>
         <width>16</width>
-        <height>551</height>
+        <height>371</height>
        </rect>
       </property>
       <property name="font">
@@ -995,9 +891,9 @@
      <widget class="QWidget" name="horizontalLayoutWidget_8">
       <property name="geometry">
        <rect>
-        <x>540</x>
+        <x>420</x>
         <y>100</y>
-        <width>471</width>
+        <width>431</width>
         <height>91</height>
        </rect>
       </property>
@@ -1087,7 +983,7 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>501</width>
+        <width>391</width>
         <height>91</height>
        </rect>
       </property>
@@ -1102,7 +998,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Temperatura forno</string>
+          <string>Sonda forno</string>
          </property>
          <property name="wordWrap">
           <bool>false</bool>
@@ -1177,7 +1073,7 @@
        <rect>
         <x>7</x>
         <y>380</y>
-        <width>521</width>
+        <width>391</width>
         <height>20</height>
        </rect>
       </property>
@@ -1191,9 +1087,9 @@
      <widget class="QWidget" name="horizontalLayoutWidget_6">
       <property name="geometry">
        <rect>
-        <x>540</x>
+        <x>420</x>
         <y>10</y>
-        <width>471</width>
+        <width>431</width>
         <height>91</height>
        </rect>
       </property>
@@ -1283,7 +1179,7 @@
        <rect>
         <x>10</x>
         <y>190</y>
-        <width>501</width>
+        <width>391</width>
         <height>91</height>
        </rect>
       </property>
@@ -1298,7 +1194,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Temperatura puffer</string>
+          <string>Sonda puffer</string>
          </property>
          <property name="wordWrap">
           <bool>false</bool>
@@ -1371,8 +1267,8 @@
      <widget class="QPushButton" name="burnerValveButton">
       <property name="geometry">
        <rect>
-        <x>720</x>
-        <y>330</y>
+        <x>600</x>
+        <y>310</y>
         <width>76</width>
         <height>70</height>
        </rect>
@@ -1410,9 +1306,9 @@
      <widget class="QPushButton" name="controller_settingsButton">
       <property name="geometry">
        <rect>
-        <x>350</x>
-        <y>390</y>
-        <width>171</width>
+        <x>860</x>
+        <y>60</y>
+        <width>161</width>
         <height>40</height>
        </rect>
       </property>
@@ -1436,9 +1332,9 @@
      <widget class="QPushButton" name="controller_chartsButton">
       <property name="geometry">
        <rect>
-        <x>350</x>
-        <y>440</y>
-        <width>171</width>
+        <x>860</x>
+        <y>110</y>
+        <width>161</width>
         <height>40</height>
        </rect>
       </property>
@@ -1470,6 +1366,201 @@
       </property>
       <property name="text">
        <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="internalOpeningButton">
+      <property name="geometry">
+       <rect>
+        <x>420</x>
+        <y>210</y>
+        <width>84</width>
+        <height>70</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="resources.qrc">
+        <normaloff>:/resources/internalOpeningOpen.png</normaloff>
+        <normalon>:/resources/internalOpeningClose.png</normalon>:/resources/internalOpeningOpen.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>85</width>
+        <height>85</height>
+       </size>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="default">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="externalOpeningButton">
+      <property name="geometry">
+       <rect>
+        <x>420</x>
+        <y>310</y>
+        <width>84</width>
+        <height>70</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="resources.qrc">
+        <normaloff>:/resources/externalOpeningOpen.png</normaloff>
+        <normalon>:/resources/externalOpeningClose.png</normalon>:/resources/externalOpeningOpen.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>76</width>
+        <height>76</height>
+       </size>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="default">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="resistanceButton">
+      <property name="geometry">
+       <rect>
+        <x>680</x>
+        <y>310</y>
+        <width>76</width>
+        <height>70</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="resources.qrc">
+        <normaloff>:/resources/resistanceOff.png</normaloff>
+        <normalon>:/resources/resistanceOn.png</normalon>:/resources/resistanceOff.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>56</width>
+        <height>56</height>
+       </size>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="default">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="rotisserieButton">
+      <property name="geometry">
+       <rect>
+        <x>680</x>
+        <y>210</y>
+        <width>76</width>
+        <height>70</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="resources.qrc">
+        <normaloff>:/resources/rotisserieOff.png</normaloff>
+        <normalon>:/resources/rotisserieOn.png</normalon>:/resources/rotisserieOff.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>76</width>
+        <height>76</height>
+       </size>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="default">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="vacuumButton">
+      <property name="geometry">
+       <rect>
+        <x>770</x>
+        <y>210</y>
+        <width>76</width>
+        <height>70</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="resources.qrc">
+        <normaloff>:/resources/vacuumOff.png</normaloff>
+        <normalon>:/resources/vacuumOn.png</normalon>:/resources/vacuumOff.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>64</width>
+        <height>64</height>
+       </size>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="default">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
       </property>
      </widget>
     </widget>
@@ -2073,9 +2164,9 @@
       <property name="geometry">
        <rect>
         <x>680</x>
-        <y>260</y>
-        <width>281</width>
-        <height>261</height>
+        <y>250</y>
+        <width>301</width>
+        <height>281</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -2087,8 +2178,8 @@
       <widget class="QWidget" name="gridLayoutWidget">
        <property name="geometry">
         <rect>
-         <x>0</x>
-         <y>0</y>
+         <x>10</x>
+         <y>10</y>
          <width>281</width>
          <height>261</height>
         </rect>

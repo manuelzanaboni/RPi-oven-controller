@@ -13,7 +13,8 @@ QFrame#fumesLCD,
 QFrame#pressionLCD,
 QFrame#gasLCD,
 QFrame#timerFrame,
-QFrame#thermostatFrame {
+QFrame#thermostatFrame,
+QFrame#layoutFrame {
     border: 2px solid #D9CFBF;
     border-radius: 5px;
 }
@@ -36,12 +37,6 @@ QFrame#line_4,
 QFrame#line_5 {
     border: 1px solid #D9CFBF;
     max-height: 0px;
-}
-
-QPushButton#startTimerButton,
-QPushButton#stopTimerButton,
-QPushButton#resetTimerButton {
-    font: italic bold;
 }
 
 QSlider {
@@ -81,7 +76,9 @@ QPushButton#burnerValveButton:checked {
     border-radius: 10px;
 }
 
-
+QPushButton#startTimerButton,
+QPushButton#stopTimerButton,
+QPushButton#resetTimerButton,
 QPushButton#controller_settingsButton,
 QPushButton#controller_chartsButton,
 QPushButton#charts_settingsButton,
