@@ -36,13 +36,18 @@ class OvenController(object):
         self.__steam = False
         self.__burnerFan = False
         self.__externalOpening = False
+        self.__rotisserie = False
+        self.__resistance = False
+        self.__vacuum = False
         self.__realTime = False
 
         """ initialize Relay GPIO """
         GPIO.setmode(GPIO.BCM)
         gpioList = [PIN.RELAY1_BURNER, PIN.RELAY2_BURNER_VALVE, PIN.RELAY3_BURNER_FAN,
                     PIN.RELAY4_LIGHT, PIN.RELAY5_STEAM, PIN.RELAY6_INT_OPENING,
-                    PIN.RELAY7_EST_OPENING, PIN.RELAY8_RPI_FAN]
+                    PIN.RELAY7_EST_OPENING, PIN.RELAY8_RPI_FAN, PIN.RELAY9_ROTISSERIE,
+                    PIN.RELAY10_RESISTANCE, PIN.RELAY11_VACUUM, PIN.RELAY12_UNUSED]
+
         for i in gpioList:
             GPIO.setup(i, GPIO.OUT)
             GPIO.output(i, GPIO.HIGH)
@@ -248,6 +253,37 @@ class OvenController(object):
         else:
             GPIO.output(PIN.RELAY7_EST_OPENING, GPIO.HIGH)
             
+            
+    def toggleRotisserie(self):
+        self.__rotisserie = not self.__rotisserie
+
+        if self.__rotisserie:
+            GPIO.output(PIN.RELAY9_ROTISSERIE, GPIO.LOW)
+            #self.notify(MSG["light_on"])
+        else:
+            GPIO.output(PIN.RELAY9_ROTISSERIE, GPIO.HIGH)
+            #self.notify(MSG["light_off"])
+            
+    def toggleResistance(self):
+        self.__resistance = not self.__resistance
+
+        if self.__resistance:
+            GPIO.output(PIN.RELAY10_RESISTANCE, GPIO.LOW)
+            #self.notify(MSG["light_on"])
+        else:
+            GPIO.output(PIN.RELAY10_RESISTANCE, GPIO.HIGH)
+            #self.notify(MSG["light_off"])
+            
+    def toggleVacuum(self):
+        self.__vacuum = not self.__vacuum
+
+        if self.__vacuum:
+            GPIO.output(PIN.RELAY11_VACUUM, GPIO.LOW)
+            #self.notify(MSG["light_on"])
+        else:
+            GPIO.output(PIN.RELAY11_VACUUM, GPIO.HIGH)
+            #self.notify(MSG["light_off"])
+                        
     def manageBurnerButtonAndLabel(self, state):
         self.__burner = state
         self.ui.manageBurnerSignal.emit(state)

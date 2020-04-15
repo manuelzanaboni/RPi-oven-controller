@@ -28,24 +28,23 @@ class SensReader(Thread):
 
     def kill(self):
         self.stop = True
-        
+
     def calibratePressionSensors(self):
-        
-        sum = 0
-        for i in range(10): 
-            sum += self.pressionSensor.read_pressure()
-            time.sleep(0.3)
-        
+        sum = self.aggregateReads(self.pressionSensor, 10)
         mean1 = sum // 10
 
-        sum = 0
-        for i in range(10): 
-            sum += self.gasSensor.read_pressure()
-            time.sleep(0.3)
-        
+        sum = self.aggregateReads(self.gasSensor, 10)
         mean2 = sum // 10
 
         return mean1, mean2
+    
+    def aggregateReads(self, sensor, num):
+        sum = 0
+        for i in range(num):
+            sum += sensor.read_pressure()
+            time.sleep(0.01)
+            
+        return sum
         
     def isNaN(self, val):
         return val != val
@@ -63,13 +62,19 @@ class SensReader(Thread):
             floorTemp = self.floorThermocouple.readTempC()
             pufferTemp = self.pufferThermocouple.readTempC()
             fumesTemp = self.fumesThermocouple.readTempC()
-            
+            """
             pression1 = self.pressionSensor.read_pressure()
             delta1 = pression1 - mean1
             
             pression2 = self.gasSensor.read_pressure()
             delta2 = pression2 - mean2
-
+            """
+            pression1 = self.aggregateReads(self.pressionSensor, 10) // 10
+            delta1 = pression1 - mean1
+            
+            pression2 = self.aggregateReads(self.gasSensor, 10) // 10
+            delta2 = pression2 - mean2
+            
             """ display data """
             self.controller.setData(ovenTemp, floorTemp, pufferTemp, fumesTemp, delta1, delta2)
 

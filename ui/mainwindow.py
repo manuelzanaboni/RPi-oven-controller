@@ -139,6 +139,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.externalOpeningButton.pressed.connect(self.controller.toggleExternalOpening)
         self.externalOpeningButton.released.connect(self.controller.toggleExternalOpening)
+        
+        self.rotisserieButton.clicked.connect(self.controller.toggleRotisserie)
+        
+        self.resistanceButton.clicked.connect(self.controller.toggleResistance)
+
+        self.vacuumButton.clicked.connect(self.controller.toggleVacuum)
 
         self.horizontalSlider.valueChanged['int'].connect(self.thermostatLCD.display)
         self.horizontalSlider.sliderReleased.connect(self.setThermostatTemp)

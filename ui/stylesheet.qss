@@ -12,9 +12,11 @@ QFrame#pufferLCD,
 QFrame#fumesLCD,
 QFrame#pressionLCD,
 QFrame#gasLCD,
+QFrame#temperaturesFrame,
+QFrame#topFrame,
 QFrame#timerFrame,
 QFrame#thermostatFrame,
-QFrame#layoutFrame {
+QFrame#keypadFrame {
     border: 2px solid #D9CFBF;
     border-radius: 5px;
 }
@@ -25,14 +27,6 @@ QLineEdit {
     border: 1px solid #BfB6A6;
 }
 
-QFrame#line_2 {
-    border: 1px solid #D9CFBF;
-    max-width: 0px;
-}
-
-
-QFrame#line,
-QFrame#line_3,
 QFrame#line_4,
 QFrame#line_5 {
     border: 1px solid #D9CFBF;
@@ -71,7 +65,10 @@ QPushButton#lightButton:checked,
 QPushButton#internalOpeningButton:checked,
 QPushButton#externalOpeningButton:checked,
 QPushButton#alexaButton:checked,
-QPushButton#burnerValveButton:checked {
+QPushButton#burnerValveButton:checked,
+QPushButton#rotisserieButton:checked,
+QPushButton#resistanceButton:checked,
+QPushButton#vacuumButton:checked {
     background-color: rgba(255,255,255,0);
     border-radius: 10px;
 }
@@ -110,6 +107,9 @@ QPushButton#buttonOk {
     border: 1px solid #BfB6A6;
 }
 
+QPushButton#startTimerButton:pressed,
+QPushButton#stopTimerButton:pressed,
+QPushButton#resetTimerButton:pressed,
 QPushButton#controller_settingsButton:pressed,
 QPushButton#controller_chartsButton:pressed,
 QPushButton#charts_settingsButton:pressed,
