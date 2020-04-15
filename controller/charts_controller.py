@@ -5,15 +5,37 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtChart import *
 
 import pandas as pd
+import math
 import sqlite3
-import time
+
+"""
+class Chart(QChart):
+    
+    def __init__(self):
+        super().__init__()
+        self.grabGesture(QtCore.Qt.PanGesture)
+        self.grabGesture(QtCore.Qt.PinchGesture)
+        
+    def sceneEvent(self, event):
+        if event.type() == QtCore.QEvent.Gesture:
+            print("Gesture")
+            
+        if event.type() == QtCore.Qt.PanGesture:
+            print("Pan")
+            
+        if event.type() == QtCore.Qt.PinchGesture:
+            print("Pinch")
+        print(event.type())
+            
+        return super().event(event)
+"""     
 
 class ChartsController(object):
     def __init__(self, container):
         """ Layout to fill with chart """
         self.container = container
         """ Max Y axis value """
-        self.upperYValue = 40
+        self.upperYValue = 10
         
         self.setupCharts()
         
@@ -24,6 +46,8 @@ class ChartsController(object):
         self.chart.legend().setVisible(True)
         self.chart.setTitle("Andamento temperatura.")
         #self.chart.setAnimationOptions(QChart.SeriesAnimations)
+        self.chart.setTheme(QChart.ChartThemeBrownSand)
+        
         
         """ Series definition """
         self.ovenSerie = QLineSeries()
@@ -69,9 +93,37 @@ class ChartsController(object):
         """ Chart View """
         self.chartView = QChartView(self.chart)
         self.chartView.setRenderHint(QtGui.QPainter.Antialiasing)
+        #self.chartView.setRubberBand(QChartView.HorizontalRubberBand)
         
         self.container.addWidget(self.chartView, 1, 1)
         
+        
+    def getData(self, interval):
+        query_string = ""
+        
+        if interval == "hour":
+            query_string = "SELECT * FROM Temperatures WHERE Timestamp > DATETIME('now', 'localtime', '-1 hour');"
+        elif interval == "day":
+            query_string = "SELECT * FROM Temperatures WHERE Timestamp > DATETIME('now', 'localtime', '-1 day');"
+        elif interval == "week":
+            query_string = "SELECT * FROM Temperatures WHERE Timestamp > DATETIME('now', 'localtime', '-7 days');"
+        
+        records = []
+        
+        try:
+            con = sqlite3.connect('oven.db')
+            with con:
+                cur = con.cursor()                        
+                cur.execute(query_string)
+                records = cur.fetchall()
+                cur.close()
+            con.close()
+        except:
+            print("Couldn't read from DB")
+            #self.controller.notifyCritical(MSG["DB_error"])
+            
+        return records
+    
     def toggleOvenSerie(self, state):
         if state:
             self.ovenSerie.show()
@@ -114,36 +166,48 @@ class ChartsController(object):
             
         self.axisX.setFormat("hh:mm:ss")
         self.axisX.setTickCount(10)
-        self.updateUpperYValue()
+        self.updateUpperYValue([ovenTemp, floorTemp, pufferTemp, fumesTemp])
         
-        self.ovenSerie.append(currentTime.toMSecsSinceEpoch(), ovenTemp)
-        self.floorSerie.append(currentTime.toMSecsSinceEpoch(), floorTemp)
-        self.pufferSerie.append(currentTime.toMSecsSinceEpoch(), pufferTemp)
-        self.fumesSerie.append(currentTime.toMSecsSinceEpoch(), fumesTemp)
+        currentTimeMsec = currentTime.toMSecsSinceEpoch()
+        if not math.isnan(ovenTemp):
+            self.ovenSerie.append(currentTimeMsec, ovenTemp)
+        if not math.isnan(floorTemp):
+            self.floorSerie.append(currentTimeMsec, floorTemp)
+        if not math.isnan(pufferTemp):
+            self.pufferSerie.append(currentTimeMsec, pufferTemp)
+        if not math.isnan(fumesTemp):
+            self.fumesSerie.append(currentTimeMsec, fumesTemp)
         
-    def updateUpperYValue(self):
-        max = 0
+    def updateUpperYValue(self, temps = None):
+        MAX = 0
         
-        for val in self.ovenSerie.pointsVector():
-            if val.y() > max:
-                max = val.y()
-                
-        for val in self.floorSerie.pointsVector():
-            if val.y() > max:
-                max = val.y()
-                
-        for val in self.pufferSerie.pointsVector():
-            if val.y() > max:
-                max = val.y()
-                
-        for val in self.fumesSerie.pointsVector():
-            if val.y() > max:
-                max = val.y()
-                
-        if max > self.upperYValue:
-            self.upperYValue = max + 10
+        if temps is not None:
+            """ real time """
+            list = []
+            """ filter nan """
+            for temp in temps:
+                if not math.isnan(temp):
+                    list.append(temp)
+                    
+            MAX = max(list)
+        else:
+            """ interval drawing """
+            MAX = max(self.max(self.ovenSerie),
+                      self.max(self.floorSerie),
+                      self.max(self.pufferSerie),
+                      self.max(self.fumesSerie))
+            
+        if MAX > self.upperYValue:
+            self.upperYValue = MAX + 10
             self.axisY.setRange(0, self.upperYValue)
-                
+             
+    def max(self, serie):
+        max = 0
+        for val in serie.pointsVector():
+            if val.y() > max:
+                max = val.y()
+        return max
+    
     def clearSeries(self):
         self.ovenSerie.clear()
         self.floorSerie.clear()
@@ -153,40 +217,12 @@ class ChartsController(object):
     def draw(self, interval):
         self.clearSeries()
         data = self.getData(interval) # Python list
-        print(len(data))
-        data = self.resampleData(data, interval) # pandas DataFrame
+        print(data)
+        data = self.resampleData(data, interval) # pandas DataFrame (resampled data)
         print(data)
         self.updateAxisXInterval(data['Timestamp'].iloc[0], data['Timestamp'].iloc[-1], interval)     
         self.buildSeries(data)
-        """
         self.updateUpperYValue()
-        """
-    
-    def getData(self, interval):
-        query_string = ""
-        
-        if interval == "hour":
-            query_string = "SELECT * FROM Temperatures WHERE Timestamp > DATETIME('now', 'localtime', '-1 hour');"
-        elif interval == "day":
-            query_string = "SELECT * FROM Temperatures WHERE Timestamp > DATETIME('now', 'localtime', '-1 day');"
-        elif interval == "week":
-            query_string = "SELECT * FROM Temperatures WHERE Timestamp > DATETIME('now', 'localtime', '-7 days');"
-        
-        records = []
-        
-        try:
-            con = sqlite3.connect('oven.db')
-            with con:
-                cur = con.cursor()                        
-                cur.execute(query_string)
-                records = cur.fetchall()
-                cur.close()
-            con.close()
-        except:
-            print("Couldn't read from DB")
-            #self.controller.notifyCritical(MSG["DB_error"])
-            
-        return records
     
     def resampleData(self, data, interval):
         df = pd.DataFrame(data, columns=['Timestamp', 'OvenTemp', 'FloorTemp', 'PufferTemp', 'FumesTemp'])
@@ -214,14 +250,12 @@ class ChartsController(object):
         self.axisX.setRange(min, max)
         
     def buildSeries(self, data):
+        # need to check columns number
         for index, row in data.iterrows():
-            #datetime = QtCore.QDateTime.fromString(tuple[0], "yyyy-MM-dd HH:mm:ss").toMSecsSinceEpoch()
-            #datetime = time.mktime(pd.Timestamp(row[0]).timetuple())
-            datetime = time.mktime(row[0].timetuple())
+            datetimeString = row[0].strftime("%Y/%m/%d %H:%M:%S")
+            datetime = QtCore.QDateTime.fromString(datetimeString, "yyyy/MM/dd HH:mm:ss").toMSecsSinceEpoch()
             self.ovenSerie.append(datetime, row[1])
             self.floorSerie.append(datetime, row[2])
             self.pufferSerie.append(datetime, row[3])
             self.fumesSerie.append(datetime, row[4])
-
-            
             

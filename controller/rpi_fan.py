@@ -8,7 +8,7 @@ import subprocess
 
 import utils.default_gpio as PIN
 
-ON_THRESHOLD = 45  # (degrees Celsius) Fan kicks on at this temperature.
+ON_THRESHOLD = 48  # (degrees Celsius) Fan kicks on at this temperature.
 OFF_THRESHOLD = 39  # (degress Celsius) Fan shuts off at this temperature.
 SLEEP_INTERVAL = 5  # (seconds) How often we check the core temperature.
 

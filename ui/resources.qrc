@@ -18,5 +18,11 @@
         <file>../resources/burnerValveOff.png</file>
         <file>../resources/burnerValveOn.png</file>
         <file>../resources/background-polar.png</file>
+        <file>../resources/externalOpeningOpen.png</file>
+        <file>../resources/externalOpeningClose.png</file>
+        <file>../resources/resistanceOff.png</file>
+        <file>../resources/resistanceOn.png</file>
+        <file>../resources/rotisserieOff.png</file>
+        <file>../resources/rotisserieOn.png</file>
     </qresource>
 </RCC>
