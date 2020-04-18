@@ -8,7 +8,7 @@ from controller.oven_controller import OvenController
 from controller.charts_controller import ChartsController
 from components.switch import Switch
 from components.settings_field import SettingsField
-import math
+from math import floor, ceil
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
@@ -29,14 +29,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.fanMovie = QtGui.QMovie(":/resources/fan.gif", parent = self)
         
         """  Burner movie management """
-        self.burnerLabel.setGeometry(QtCore.QRect(850, 215, 150, 175))
+        self.burnerLabel.setGeometry(QtCore.QRect(880, 230, 150, 175))
         self.fireMovie = QtGui.QMovie(":/resources/fire.gif", parent = self)
         self.fireMovie.setScaledSize(QtCore.QSize(150, 175))
         self.burnerLabel.setMovie(self.fireMovie)
         self.burnerLabel.hide()
         
         """  Burner valve movie management """
-        self.burnerValveLabel.setGeometry(QtCore.QRect(800, 290, 75, 100))
+        self.burnerValveLabel.setGeometry(QtCore.QRect(830, 305, 75, 100))
         self.valveFireMovie = QtGui.QMovie(":/resources/fire.gif", parent = self)
         self.valveFireMovie.setScaledSize(QtCore.QSize(75, 100))
         self.burnerValveLabel.setMovie(self.valveFireMovie)
@@ -82,10 +82,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.manageBurnerButtonAndLabel(state)
         
     def initializeSettingsFields(self):
-        #todo: customize switch
-        self.pressionSwitch = Switch(thumb_radius=8, track_radius=11, parent = self)
+        self.pressionSwitch = Switch(thumb_radius=11, track_radius=15, parent = self)
         self.pressionSwitch.setChecked(True)
-        self.settingsLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.pressionSwitch)            
+        self.settingsLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.pressionSwitch)
             
         self.inputPressionThreshold = SettingsField(ui = self)
         self.inputPressionThreshold.setText("30")
@@ -93,7 +92,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.inputPressionThreshold.setObjectName("inputPressionThreshold")
         self.settingsLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.inputPressionThreshold)
         
-        self.persistDataSwitch = Switch(thumb_radius=8, track_radius=11, parent = self)
+        self.persistDataSwitch = Switch(thumb_radius=11, track_radius=15, parent = self)
         self.persistDataSwitch.setChecked(True)
         self.settingsLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.persistDataSwitch)
         
@@ -250,7 +249,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         value = self.horizontalSlider.value()
         
         if value < self.horizontalSlider.maximum():
-            value = math.floor(value / 10) * 10 + 10
+            value = floor(value / 10) * 10 + 10 #math.floor
             self.horizontalSlider.setValue(value)
             self.setThermostatTemp()
 
@@ -258,7 +257,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         value = self.horizontalSlider.value()
         
         if value > self.horizontalSlider.minimum():
-            value = math.ceil(value / 10) * 10 - 10
+            value = ceil(value / 10) * 10 - 10 # math.ceil
             self.horizontalSlider.setValue(value)
             self.setThermostatTemp()
 

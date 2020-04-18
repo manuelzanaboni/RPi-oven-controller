@@ -4,6 +4,7 @@
 import sqlite3
 import time
 from threading import Thread
+from math import isnan
 
 import MAX6675.MAX6675 as MAX6675
 import Adafruit_BMP.BMP085 as BMP085
@@ -46,9 +47,6 @@ class SensReader(Thread):
             
         return sum
         
-    def isNaN(self, val):
-        return val != val
-    
     def run(self):
         """ calibrate sensors"""
         self.controller.notify(MSG["calibration"])
@@ -84,22 +82,22 @@ class SensReader(Thread):
                 """ Build query string """
                 insert_string = "INSERT INTO Temperatures VALUES(datetime('now', 'localtime')"
                         
-                if not self.isNaN(ovenTemp):
+                if not isnan(ovenTemp):
                     insert_string += ", " + str(ovenTemp)
                 else:
                     insert_string += ", NULL"
                     
-                if not self.isNaN(floorTemp):
+                if not isnan(floorTemp):
                     insert_string += ", " + str(floorTemp)
                 else:
                     insert_string += ", NULL"
                     
-                if not self.isNaN(pufferTemp):
+                if not isnan(pufferTemp):
                     insert_string += ", " + str(pufferTemp)
                 else:
                     insert_string += ", NULL"
                     
-                if not self.isNaN(fumesTemp):
+                if not isnan(fumesTemp):
                     insert_string += ", " + str(fumesTemp)
                 else:
                     insert_string += ", NULL"

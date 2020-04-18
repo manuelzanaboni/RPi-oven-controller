@@ -36,3 +36,7 @@ OVEN_CONTROLLER_MSGS = {
     "set_point" : "Nuova temperatura impostata.",
     "function_disabled" : "Funzione disabilitata a bruciatore acceso."
     }
+
+CHARTS_CONTROLLER_MSGS = {
+    "chart_drawing_error" : "Errore nella costruzione del grafico."
+    }

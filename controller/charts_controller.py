@@ -1,13 +1,15 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtChart import *
-
 import pandas as pd
-import math
+from math import isnan
 import sqlite3
 
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtChart import *
+from utils.messages import CHARTS_CONTROLLER_MSGS as MSG
+
+AXISX_RANGE = 180 #(seconds)
 """
 class Chart(QChart):
     
@@ -35,7 +37,7 @@ class ChartsController(object):
         """ Layout to fill with chart """
         self.container = container
         """ Max Y axis value """
-        self.upperYValue = 10
+        self.upperYValue = 40
         
         self.setupCharts()
         
@@ -99,6 +101,7 @@ class ChartsController(object):
         
         
     def getData(self, interval):
+        """ Retrieve data from db """
         query_string = ""
         
         if interval == "hour":
@@ -125,40 +128,47 @@ class ChartsController(object):
         return records
     
     def toggleOvenSerie(self, state):
+        """ Display/Hide oven temperatures """
         if state:
             self.ovenSerie.show()
         else:
             self.ovenSerie.hide()
             
     def toggleFloorSerie(self, state):
+        """ Display/Hide floor temperatures """
         if state:
             self.floorSerie.show()
         else:
             self.floorSerie.hide()
             
     def togglePufferSerie(self, state):
+        """ Display/Hide puffer temperatures """
         if state:
             self.pufferSerie.show()
         else:
             self.pufferSerie.hide()
             
     def toggleFumesSerie(self, state):
+        """ Display/Hide fumes temperatures """
         if state:
             self.fumesSerie.show()
         else:
             self.fumesSerie.hide()
              
     def toggleRealTimeTracking(self, state):
+        """ Updates axis X range / clear chart """
         if state:
             self.updateAxisX()
         else:
             self.clearSeries()
         
     def updateAxisX(self):
+        """ Set time range """
         currentTime =  QtCore.QDateTime.currentDateTime()
-        self.axisX.setRange(currentTime, currentTime.addSecs(120))
+        self.axisX.setRange(currentTime, currentTime.addSecs(AXISX_RANGE))
         
     def updateChartRealTime(self, ovenTemp, floorTemp, pufferTemp, fumesTemp):
+        """ Updates chart with real time data from sensors """
         currentTime =  QtCore.QDateTime.currentDateTime()
         if self.axisX.max() <= currentTime:
             self.updateAxisX()
@@ -169,16 +179,21 @@ class ChartsController(object):
         self.updateUpperYValue([ovenTemp, floorTemp, pufferTemp, fumesTemp])
         
         currentTimeMsec = currentTime.toMSecsSinceEpoch()
-        if not math.isnan(ovenTemp):
-            self.ovenSerie.append(currentTimeMsec, ovenTemp)
-        if not math.isnan(floorTemp):
-            self.floorSerie.append(currentTimeMsec, floorTemp)
-        if not math.isnan(pufferTemp):
-            self.pufferSerie.append(currentTimeMsec, pufferTemp)
-        if not math.isnan(fumesTemp):
-            self.fumesSerie.append(currentTimeMsec, fumesTemp)
+        self.appendData(currentTimeMsec, ovenTemp, floorTemp, pufferTemp, fumesTemp)
+        
+    def appendData(self, datetime, ovenTemp, floorTemp, pufferTemp, fumesTemp):
+        """ Append data to series """
+        if not isnan(ovenTemp):
+            self.ovenSerie.append(datetime, ovenTemp)
+        if not isnan(floorTemp):
+            self.floorSerie.append(datetime, floorTemp)
+        if not isnan(pufferTemp):
+            self.pufferSerie.append(datetime, pufferTemp)
+        if not isnan(fumesTemp):
+            self.fumesSerie.append(datetime, fumesTemp)
         
     def updateUpperYValue(self, temps = None):
+        """ Update upper axis Y value based on max series value """
         MAX = 0
         
         if temps is not None:
@@ -186,7 +201,7 @@ class ChartsController(object):
             list = []
             """ filter nan """
             for temp in temps:
-                if not math.isnan(temp):
+                if not isnan(temp):
                     list.append(temp)
                     
             MAX = max(list)
@@ -215,29 +230,30 @@ class ChartsController(object):
         self.fumesSerie.clear()
         
     def draw(self, interval):
+        """ Main function to draw chart based on interval """
         self.clearSeries()
         data = self.getData(interval) # Python list
-        print(data)
         data = self.resampleData(data, interval) # pandas DataFrame (resampled data)
-        print(data)
         self.updateAxisXInterval(data['Timestamp'].iloc[0], data['Timestamp'].iloc[-1], interval)     
         self.buildSeries(data)
         self.updateUpperYValue()
     
     def resampleData(self, data, interval):
+        """ Converts data to pandas DataFrame type and perform resampling """
         df = pd.DataFrame(data, columns=['Timestamp', 'OvenTemp', 'FloorTemp', 'PufferTemp', 'FumesTemp'])
         df = df.assign(Timestamp=pd.to_datetime(df.Timestamp))
         
         if interval == "hour":
-            df = df.resample('1min', on='Timestamp').mean().reset_index().interpolate()
+            df = df.resample('1min', on='Timestamp')
         elif interval == "day":
-            df = df.resample('5min', on='Timestamp').mean().reset_index().interpolate()
+            df = df.resample('5min', on='Timestamp')
         elif interval == "week":
-            df = df.resample('20min', on='Timestamp').mean().reset_index().interpolate()
-        
+            df = df.resample('20min', on='Timestamp')
+            
+        df = df.mean().reset_index().interpolate()
         return df
             
-    def updateAxisXInterval(self, min, max, interval):        
+    def updateAxisXInterval(self, min, max, interval):  
         if interval == "week":
             self.axisX.setFormat("dd/MM/yyyy")
             self.axisX.setTickCount(7)
@@ -250,12 +266,11 @@ class ChartsController(object):
         self.axisX.setRange(min, max)
         
     def buildSeries(self, data):
-        # need to check columns number
-        for index, row in data.iterrows():
-            datetimeString = row[0].strftime("%Y/%m/%d %H:%M:%S")
-            datetime = QtCore.QDateTime.fromString(datetimeString, "yyyy/MM/dd HH:mm:ss").toMSecsSinceEpoch()
-            self.ovenSerie.append(datetime, row[1])
-            self.floorSerie.append(datetime, row[2])
-            self.pufferSerie.append(datetime, row[3])
-            self.fumesSerie.append(datetime, row[4])
+        if(data.shape[1] > 4):
+            for index, row in data.iterrows():
+                datetimeString = row[0].strftime("%Y/%m/%d %H:%M:%S")
+                datetime = QtCore.QDateTime.fromString(datetimeString, "yyyy/MM/dd HH:mm:ss").toMSecsSinceEpoch()    
+                self.appendData(datetime, row[1], row[2], row[3], row[4])
+        else:
+            self.controller.notifyCritical(MSG["chart_drawing_error"])
             
