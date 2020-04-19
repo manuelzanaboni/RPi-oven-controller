@@ -90,6 +90,7 @@ QPushButton#charts_lastDayButton,
 QPushButton#charts_lastWeekButton,
 QPushButton#settings_controllerButton,
 QPushButton#settings_chartsButton,
+QPushButton#settings_resetPressionButton,
 QPushButton#button0,
 QPushButton#button1,
 QPushButton#button2,
@@ -105,6 +106,7 @@ QPushButton#buttonOk {
     background-color: #D9CFBF;
     border-radius: 10px;
     border: 1px solid #BfB6A6;
+    padding: 0px 5px;
 }
 
 QPushButton#startTimerButton:pressed,
@@ -124,6 +126,7 @@ QPushButton#charts_lastDayButton:pressed,
 QPushButton#charts_lastWeekButton:pressed,
 QPushButton#settings_controllerButton:pressed,
 QPushButton#settings_chartsButton:pressed,
+QPushButton#settings_resetPressionButton:pressed,
 QPushButton#button0:pressed,
 QPushButton#button1:pressed,
 QPushButton#button2:pressed,

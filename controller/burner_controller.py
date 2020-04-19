@@ -7,7 +7,7 @@ import RPi.GPIO as GPIO
 
 import utils.default_gpio as PIN
 from utils.messages import BURNER_CONTROLLER_MSGS as MSG
-from .upper_checker import UpperChecker
+from .upper_checker_burner import UpperCheckerBurner
 
 SLEEP_TIME = 3 # (seconds) overall sleep time
 PRESSION_CHECK_SLEEP = 10 # (seconds) sleep time after burner startup
@@ -20,7 +20,7 @@ class BurnerController(Thread):
         self.state = Condition()        
         self.stop = False
         
-        self.upperChecker = UpperChecker(controller = self.controller, burner_controller = self)
+        self.upperChecker = UpperCheckerBurner(controller = self.controller, burner_controller = self)
         self.upperChecker.start()
         
     def resume(self):
@@ -40,6 +40,8 @@ class BurnerController(Thread):
         Method called on application exit.
         """
         self.stop = True
+        if self.paused:
+            self.resume()   
     
     def getBurnerState(self):
         """
@@ -92,10 +94,7 @@ class BurnerController(Thread):
         while not self.stop:                    
             with self.state:
                 if self.paused:
-                    print("Thread paused, waiting to resume...")
                     self.state.wait()  # Block execution until notified.
-            
-            #print("executing")
             
             if not self.stop: # skip execution if kill() has been called
                 
@@ -111,9 +110,8 @@ class BurnerController(Thread):
                         """
                         self.turnBurnerOn()
 
-                        self.controller.notify(MSG["burner_startup"], 5000)
-                        
                         if self.controller.config["checkPression"]:
+                            self.controller.notify(MSG["burner_startup"], 5000)
                             self.controller.toggleBurnerButtonEnabled(False)
                             time.sleep(PRESSION_CHECK_SLEEP)
                             self.checkPression()

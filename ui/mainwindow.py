@@ -14,6 +14,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     notifySignal = pyqtSignal(str, bool, int)
     manageBurnerSignal = pyqtSignal(bool)
+    manageValveSignal = pyqtSignal(bool)
     
     def __init__(self, *args, **kwargs):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
@@ -81,6 +82,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def manageBurnerSlot(self, state):
         self.manageBurnerButtonAndLabel(state)
         
+    @pyqtSlot(bool)
+    def manageValveSlot(self, state):
+        self.manageValveLabel(state)
+        
     def initializeSettingsFields(self):
         self.pressionSwitch = Switch(thumb_radius=11, track_radius=15, parent = self)
         self.pressionSwitch.setChecked(True)
@@ -115,10 +120,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.settingsLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.inputUpperCheckerTime)
         
     def connectActions(self):
-        """ Manage buttons' action """
+        """ Signal / Slot connections """
         self.notifySignal.connect(self.notifySlot)
         self.manageBurnerSignal.connect(self.manageBurnerSlot)
+        self.manageValveSignal.connect(self.manageValveSlot)
         
+        """ Manage buttons' action """
         self.burnerButton.clicked.connect(self.toggleBurner)
 
         self.burnerValveButton.clicked.connect(self.toggleBurnerValve)
@@ -150,8 +157,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.incrementThermostatButton.pressed.connect(self.incrementThermostat)
         self.decrementThermostatButton.pressed.connect(self.decrementThermostat)
         
+        self.settings_resetPressionButton.clicked.connect(self.controller.calibratePressionSensors)
         self.alexaButton.clicked.connect(self.toggleAlexa)
-
         self.quitButton.clicked.connect(self.close)
         
         """ settings fields """

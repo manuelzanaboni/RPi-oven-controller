@@ -1086,6 +1086,16 @@ class Ui_MainWindow(object):
         self.buttonOk.setFlat(False)
         self.buttonOk.setObjectName("buttonOk")
         self.keypadLayout.addWidget(self.buttonOk, 3, 2, 1, 1)
+        self.settings_resetPressionButton = QtWidgets.QPushButton(self.settingsPage)
+        self.settings_resetPressionButton.setGeometry(QtCore.QRect(20, 390, 171, 40))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.settings_resetPressionButton.setFont(font)
+        self.settings_resetPressionButton.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.settings_resetPressionButton.setFlat(False)
+        self.settings_resetPressionButton.setObjectName("settings_resetPressionButton")
         self.stackedWidget.addWidget(self.settingsPage)
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -1149,6 +1159,7 @@ class Ui_MainWindow(object):
         self.buttonDel.setText(_translate("MainWindow", "<"))
         self.button0.setText(_translate("MainWindow", "0"))
         self.buttonOk.setText(_translate("MainWindow", "OK"))
+        self.settings_resetPressionButton.setText(_translate("MainWindow", "Reset pressione"))
 
 if __name__ == "__main__":
     import sys

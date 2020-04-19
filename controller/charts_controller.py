@@ -10,6 +10,7 @@ from PyQt5.QtChart import *
 from utils.messages import CHARTS_CONTROLLER_MSGS as MSG
 
 AXISX_RANGE = 180 #(seconds)
+BASE_Y_MAX_VALUE = 40 #(degree Celsius)
 """
 class Chart(QChart):
     
@@ -37,7 +38,7 @@ class ChartsController(object):
         """ Layout to fill with chart """
         self.container = container
         """ Max Y axis value """
-        self.upperYValue = 40
+        self.upperYValue = BASE_Y_MAX_VALUE
         
         self.setupCharts()
         
@@ -74,7 +75,6 @@ class ChartsController(object):
         self.axisX.setFormat("hh:mm:ss")
         self.axisX.setTickCount(10)
         self.axisX.setTitleText("Tempo")
-        self.updateAxisX()
         self.chart.addAxis(self.axisX, QtCore.Qt.AlignBottom)   
         
         self.axisY = QValueAxis()
@@ -82,6 +82,8 @@ class ChartsController(object):
         self.axisY.setTitleText("Temperatura")
         self.axisY.setRange(0, self.upperYValue)
         self.chart.addAxis(self.axisY, QtCore.Qt.AlignLeft)
+        
+        self.updateAxis()
         
         self.ovenSerie.attachAxis(self.axisX)
         self.ovenSerie.attachAxis(self.axisY)
@@ -120,7 +122,6 @@ class ChartsController(object):
                 cur.execute(query_string)
                 records = cur.fetchall()
                 cur.close()
-            con.close()
         except:
             print("Couldn't read from DB")
             #self.controller.notifyCritical(MSG["DB_error"])
@@ -158,21 +159,24 @@ class ChartsController(object):
     def toggleRealTimeTracking(self, state):
         """ Updates axis X range / clear chart """
         if state:
-            self.updateAxisX()
+            self.updateAxis()
         else:
             self.clearSeries()
         
-    def updateAxisX(self):
+    def updateAxis(self):
         """ Set time range """
         currentTime =  QtCore.QDateTime.currentDateTime()
         self.axisX.setRange(currentTime, currentTime.addSecs(AXISX_RANGE))
+        self.upperYValue = BASE_Y_MAX_VALUE
+        self.axisY.setRange(0, self.upperYValue)
         
     def updateChartRealTime(self, ovenTemp, floorTemp, pufferTemp, fumesTemp):
         """ Updates chart with real time data from sensors """
         currentTime =  QtCore.QDateTime.currentDateTime()
         if self.axisX.max() <= currentTime:
-            self.updateAxisX()
+            self.updateAxis()
             self.clearSeries()
+            
             
         self.axisX.setFormat("hh:mm:ss")
         self.axisX.setTickCount(10)
@@ -232,6 +236,8 @@ class ChartsController(object):
     def draw(self, interval):
         """ Main function to draw chart based on interval """
         self.clearSeries()
+        self.upperYValue = BASE_Y_MAX_VALUE
+        self.axisY.setRange(0, self.upperYValue)
         data = self.getData(interval) # Python list
         data = self.resampleData(data, interval) # pandas DataFrame (resampled data)
         self.updateAxisXInterval(data['Timestamp'].iloc[0], data['Timestamp'].iloc[-1], interval)     

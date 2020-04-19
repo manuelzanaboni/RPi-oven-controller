@@ -16,8 +16,9 @@ SLEEP_TIME = 3
 class SensReader(Thread):
     def __init__(self, controller):
         super(SensReader, self).__init__()
+        
         self.controller = controller
-
+        """ Sensors initialization """
         self.ovenThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS1, PIN.SO1)
         self.floorThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS2, PIN.SO2)
         self.pufferThermocouple = MAX6675.MAX6675(PIN.CLK, PIN.CS3, PIN.SO3)
@@ -25,19 +26,27 @@ class SensReader(Thread):
         self.pressionSensor = BMP085.BMP085(busnum=1, mode=BMP085.BMP085_ULTRAHIGHRES)
         self.gasSensor = BMP085.BMP085(busnum=4, mode=BMP085.BMP085_ULTRAHIGHRES)
         
+        self.__avgPression = 0
+        self.__avgGas = 0
+        
+        self.__reCalibrate = False
+        
         self.stop = False
 
     def kill(self):
         self.stop = True
+    
+    def setReCalibrate(self, state):
+        if state is not None:
+            self.__reCalibrate = state
 
     def calibratePressionSensors(self):
+        self.controller.notify(MSG["calibration"])
         sum = self.aggregateReads(self.pressionSensor, 10)
-        mean1 = sum // 10
+        self.__avgPression = sum // 10
 
         sum = self.aggregateReads(self.gasSensor, 10)
-        mean2 = sum // 10
-
-        return mean1, mean2
+        self.__avgGas = sum // 10
     
     def aggregateReads(self, sensor, num):
         sum = 0
@@ -49,12 +58,16 @@ class SensReader(Thread):
         
     def run(self):
         """ calibrate sensors"""
-        self.controller.notify(MSG["calibration"])
-        mean1, mean2 = self.calibratePressionSensors()
+        self.calibratePressionSensors()
 
         self.controller.notify(MSG["startup"])
         
         while not self.stop:
+            
+            if self.__reCalibrate:
+                self.calibratePressionSensors()
+                self.__reCalibrate = False
+                
             """ get data """
             ovenTemp = self.ovenThermocouple.readTempC()
             floorTemp = self.floorThermocouple.readTempC()
@@ -68,10 +81,10 @@ class SensReader(Thread):
             delta2 = pression2 - mean2
             """
             pression1 = self.aggregateReads(self.pressionSensor, 10) // 10
-            delta1 = pression1 - mean1
+            delta1 = pression1 - self.__avgPression
             
             pression2 = self.aggregateReads(self.gasSensor, 10) // 10
-            delta2 = pression2 - mean2
+            delta2 = pression2 - self.__avgGas
             
             """ display data """
             self.controller.setData(ovenTemp, floorTemp, pufferTemp, fumesTemp, delta1, delta2)
@@ -109,9 +122,7 @@ class SensReader(Thread):
                     with con:
                         cur = con.cursor()                        
                         cur.execute(insert_string)
-                        con.commit()
-                        
-                    con.close()
+                        con.commit() 
                 except:
                     print("Couldn't write on DB")
                     self.controller.notifyCritical(MSG["DB_error"])

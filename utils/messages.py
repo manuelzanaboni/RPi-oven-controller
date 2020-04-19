@@ -12,6 +12,10 @@ BURNER_CONTROLLER_MSGS = {
     "temp_reached" : "Il forno ha raggiunto la temperatura impostata. Spegnimento bruciatore."
     }
 
+RESISTANCE_CONTROLLER_MSGS = {
+    "temp_reached" : "Il forno ha raggiunto la temperatura impostata. Spegnimento resistenza."
+    }
+
 INTERNAL_OPENING_MSGS = {
     "opening_triggered" : "Apertura interna azionata."
     }

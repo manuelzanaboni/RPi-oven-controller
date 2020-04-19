@@ -3,10 +3,12 @@
 
 import RPi.GPIO as GPIO
 import subprocess
+from math import isnan
 
 import utils.default_gpio as PIN
 from utils.messages import OVEN_CONTROLLER_MSGS as MSG
 from .burner_controller import BurnerController
+from .resistance_controller import ResistanceController
 from .sens_reader import SensReader
 from .rpi_fan import FanController
 from .internal_opening_controller import InternalOpeningController
@@ -58,6 +60,10 @@ class OvenController(object):
         self.__burnerController = BurnerController(controller = self)
         self.__threads.append(self.__burnerController)
         self.__burnerController.start()
+        
+        self.__resistanceController = ResistanceController(controller = self)
+        self.__threads.append(self.__resistanceController)
+        self.__resistanceController.start()
             
         self.__sensReader = SensReader(controller = self)
         self.__threads.append(self.__sensReader)
@@ -86,35 +92,35 @@ class OvenController(object):
         return self.ui.horizontalSlider.minimum()
 
     def setData(self, ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression, deltaGas):
-        if ovenTemp is not None and not self.isNaN(ovenTemp):
+        if ovenTemp is not None and not isnan(ovenTemp):
             self.__ovenTemp = ovenTemp
             self.ui.ovenLCD.display(self.__ovenTemp)
         else:
             self.__ovenTemp = 0
             self.ui.ovenLCD.display("---")
 
-        if floorTemp is not None and not self.isNaN(floorTemp):
+        if floorTemp is not None and not isnan(floorTemp):
             self.__floorTemp = floorTemp
             self.ui.floorLCD.display(self.__floorTemp)
         else:
             self.__floorTemp = 0
             self.ui.floorLCD.display("---")
 
-        if pufferTemp is not None and not self.isNaN(pufferTemp):
+        if pufferTemp is not None and not isnan(pufferTemp):
             self.__pufferTemp = pufferTemp
             self.ui.pufferLCD.display(self.__pufferTemp)
         else:
             self.__pufferTemp = 0
             self.ui.pufferLCD.display("---")
 
-        if fumesTemp is not None and not self.isNaN(fumesTemp):
+        if fumesTemp is not None and not isnan(fumesTemp):
             self.__fumesTemp = fumesTemp
             self.ui.fumesLCD.display(self.__fumesTemp)
         else:
             self.__fumesTemp = 0
             self.ui.fumesLCD.display("---")
 
-        if deltaPression is not None and not self.isNaN(deltaPression):
+        if deltaPression is not None and not isnan(deltaPression):
             self.__deltaPression = deltaPression
             self.ui.pressionLCD.display(self.__deltaPression)
             
@@ -126,7 +132,7 @@ class OvenController(object):
             self.__deltaPression = 0
             self.ui.pressionLCD.display("----")
             
-        if deltaGas is not None and not self.isNaN(deltaGas):
+        if deltaGas is not None and not isnan(deltaGas):
             self.__deltaGas = deltaGas
             self.ui.gasLCD.display(self.__deltaGas)
         else:
@@ -142,9 +148,6 @@ class OvenController(object):
 
     def setRealTime(self, state):
         self.__realTime = state
-        
-    def isNaN(self, val):
-        return val != val
     
     def toggleBurner(self):
         """ Turn OFF steam and burner Fan if active, before starting burner """
@@ -178,7 +181,8 @@ class OvenController(object):
         if thermostatOverride is not None:
             self.__burnerValve = thermostatOverride
             self.ui.burnerValveButton.setChecked(thermostatOverride)
-            self.ui.manageValveLabel(state = self.__burnerValve)
+            #self.ui.manageValveLabel(state = self.__burnerValve)
+            self.ui.manageValveSignal.emit(self.__burnerValve)
             
         GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.LOW)
         self.notify(MSG["valve_on"])
@@ -188,17 +192,11 @@ class OvenController(object):
         if thermostatOverride is not None:
             self.__burnerValve = thermostatOverride
             self.ui.burnerValveButton.setChecked(thermostatOverride)
-            self.ui.manageValveLabel(state = self.__burnerValve)
+            #self.ui.manageValveLabel(state = self.__burnerValve)
+            self.ui.manageValveSignal.emit(self.__burnerValve)
             
         GPIO.output(PIN.RELAY2_BURNER_VALVE, GPIO.HIGH)
         self.notify(MSG["valve_off"])
-        
-    def thermostatCalling(self):
-        """
-        Whether the burner should be ON or OFF.
-        Returns True if SetPoint is greater than current internal temperature
-        """
-        return self.getSetPoint() > self.getOvenTemp()
     
     def toggleLight(self):
         self.__light = not self.__light
@@ -253,7 +251,6 @@ class OvenController(object):
         else:
             GPIO.output(PIN.RELAY7_EST_OPENING, GPIO.HIGH)
             
-            
     def toggleRotisserie(self):
         self.__rotisserie = not self.__rotisserie
 
@@ -268,11 +265,9 @@ class OvenController(object):
         self.__resistance = not self.__resistance
 
         if self.__resistance:
-            GPIO.output(PIN.RELAY10_RESISTANCE, GPIO.LOW)
-            #self.notify(MSG["light_on"])
+            self.__resistanceController.resume()
         else:
-            GPIO.output(PIN.RELAY10_RESISTANCE, GPIO.HIGH)
-            #self.notify(MSG["light_off"])
+            self.__resistanceController.pause()
             
     def toggleVacuum(self):
         self.__vacuum = not self.__vacuum
@@ -283,10 +278,23 @@ class OvenController(object):
         else:
             GPIO.output(PIN.RELAY11_VACUUM, GPIO.HIGH)
             #self.notify(MSG["light_off"])
+            
+    def thermostatCalling(self):
+        """
+        Whether the burner should be ON or OFF.
+        Returns True if SetPoint is greater than current internal temperature
+        """
+        return self.getSetPoint() > self.getOvenTemp()
                         
     def manageBurnerButtonAndLabel(self, state):
-        self.__burner = state
-        self.ui.manageBurnerSignal.emit(state)
+        if state is not None:
+            self.__burner = state
+            self.ui.manageBurnerSignal.emit(state)
+        
+    def manageResistanceButton(self, state):
+        if state is not None:
+            self.__resistance = state
+            self.ui.resistanceButton.setChecked(state)
         
     def isBurnerButtonEnabled(self):
         return self.ui.burnerButton.isEnabled()
@@ -298,7 +306,7 @@ class OvenController(object):
         self.ui.internalOpeningButton.setEnabled(state)
 
     def playAudio(self):
-        # assumes that audio reproduction finishes before app exit
+        # assumes that audio playback finishes before app exit
         subprocess.Popen(['mpg321', AUDIO_PATH])
         self.notifyCritical(MSG["timeout"])
 
@@ -306,6 +314,9 @@ class OvenController(object):
         if value is not None:
             self.__setPoint = value
             self.notify(MSG["set_point"])
+            
+    def calibratePressionSensors(self):
+        self.__sensReader.setReCalibrate(True)
 
     def notify(self, message, time = 3000):
         self.ui.notifySignal.emit(message, False, time)
@@ -315,7 +326,7 @@ class OvenController(object):
 
     def close(self):
         self.__burnerController.kill()
-        self.__burnerController.resume()
+        self.__resistanceController.kill()        
         self.__sensReader.kill()
         self.__fanController.kill()
 

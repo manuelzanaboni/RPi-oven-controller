@@ -7,11 +7,11 @@ import RPi.GPIO as GPIO
 
 import utils.default_gpio as PIN
 
-class UpperChecker(Thread):
-    def __init__(self, controller, burner_controller):
-        super(UpperChecker, self).__init__()
+class UpperCheckerResistance(Thread):
+    def __init__(self, controller, resistance_controller):
+        super(UpperCheckerResistance, self).__init__()
         self.controller = controller
-        self.burner_controller = burner_controller
+        self.resistance_controller = resistance_controller
         
         self.paused = False
         self.state = Condition()
@@ -39,15 +39,9 @@ class UpperChecker(Thread):
         self.pause()
         
         while not self.stop:
-            print("SLEEPING...")
             time.sleep(self.controller.config["inputUpperCheckerTime"])
             
             if self.controller.getOvenTemp() < self.controller.getSetPoint():
-                print("WAKING UP BURNER")
-                self.burner_controller.resume()
-                self.controller.manageBurnerButtonAndLabel(True)
+                self.resistance_controller.resume()
+                self.controller.manageResistanceButton(True)
                 self.pause()
-                
-        print("DONE")
-
-
