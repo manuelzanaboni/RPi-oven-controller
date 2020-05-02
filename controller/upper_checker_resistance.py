@@ -41,7 +41,7 @@ class UpperCheckerResistance(Thread):
         while not self.stop:
             time.sleep(self.controller.config["inputUpperCheckerTime"])
             
-            if self.controller.getOvenTemp() < self.controller.getSetPoint():
+            if self.controller.thermostatCalling():
                 self.resistance_controller.resume()
                 self.controller.manageResistanceButton(True)
                 self.pause()

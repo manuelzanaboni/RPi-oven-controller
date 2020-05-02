@@ -148,7 +148,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         self.rotisserieButton.clicked.connect(self.controller.toggleRotisserie)
         
-        self.resistanceButton.clicked.connect(self.controller.toggleResistance)
+        self.resistanceButton.clicked.connect(lambda state: self.toggleResistance(state))
 
         self.vacuumButton.clicked.connect(self.controller.toggleVacuum)
 
@@ -244,7 +244,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.fanMovie.stop()
             else:
                 self.fanMovie.start()
-
+                
+    def toggleResistance(self, state):
+        if self.controller.thermostatCalling():
+            self.controller.toggleResistance()
+        else:
+            self.resistanceButton.setChecked(not state)
+        
     def toggleAlexa(self):  # TODO future feature
         pass
 
@@ -276,20 +282,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def persistDataSwitchToggled(self, state):
         self.config["persistData"] = state
         self.controller.setConfig(self.config)
-        
-    def toggleRealTime(self, state):
-        self.charts_lastHourButton.setEnabled(not state)
-        self.charts_lastDayButton.setEnabled(not state)
-        self.charts_lastWeekButton.setEnabled(not state)
-
-        if state:
-            self.charts_realTimeButton.setText("Ferma tempo reale")
-        else:
-            self.charts_realTimeButton.setText("Tempo reale")
-            
-        self.controller.setRealTime(state)
-        self.chartsController.toggleRealTimeTracking(state)
-            
     
     def settingsFieldFocused(self, field):
         self.settingsFieldToEdit = field
@@ -333,6 +325,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.config[data[0]] = value
         except ValueError:
             raise RuntimeError("Could not cast config values during update.")
+        
+    def toggleRealTime(self, state):
+        self.charts_lastHourButton.setEnabled(not state)
+        self.charts_lastDayButton.setEnabled(not state)
+        self.charts_lastWeekButton.setEnabled(not state)
+
+        if state:
+            self.charts_realTimeButton.setText("Ferma tempo reale")
+        else:
+            self.charts_realTimeButton.setText("Tempo reale")
+            
+        self.controller.setRealTime(state)
+        self.chartsController.toggleRealTimeTracking(state)
         
     def closeEvent(self, event):    # TODO check errors
         reply = QtWidgets.QMessageBox.question(self, 'Chiudi', "Sei sicuro di chiudere l'applicazione?", 
