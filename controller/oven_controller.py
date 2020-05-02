@@ -142,7 +142,7 @@ class OvenController(object):
         """ Send data to charts if real time is enabled """
         if self.__realTime:
             self.ui.chartsController.updateChartRealTime(ovenTemp, floorTemp, pufferTemp, fumesTemp)
-                
+            
     def setConfig(self, config):
         self.config = config
 
@@ -160,13 +160,25 @@ class OvenController(object):
         """ Manage burner """
         self.__burner = not self.__burner
         
-        if self.__burner:
-            self.__burnerController.resume()
+        if self.thermostatCalling():
+            if self.__burner:
+                """ Turn Burner ON """
+                self.__burnerController.resume()
+                return True
+            else:
+                """ Turn burner OFF """
+                self.__burnerController.pause()
+                return False
         else:
-            self.__burnerController.pause()
+            if self.__burner:
+                """ Stop burner cicle """
+                self.notify(MSG["burner_off_upper"])
+                self.__burner = False
+                self.__burnerController.setUpperCheckState(False)
+                self.__burnerController.weirdPause()
+                return None
             
     def toggleBurnerValve(self):
-
         self.__burnerValve = not self.__burnerValve
         
         if self.__burnerValve:

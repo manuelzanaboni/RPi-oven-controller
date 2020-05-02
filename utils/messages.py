@@ -38,7 +38,8 @@ OVEN_CONTROLLER_MSGS = {
     "ext_opening_triggered" : "Apertura esterna azionata.",
     "timeout" : "Timer scattato!!!",
     "set_point" : "Nuova temperatura impostata.",
-    "function_disabled" : "Funzione disabilitata a bruciatore acceso."
+    "function_disabled" : "Funzione disabilitata a bruciatore acceso.",
+    "burner_off_upper" : "Forzatura spegnimento bruciatore, temperatura già raggiunta."
     }
 
 CHARTS_CONTROLLER_MSGS = {
