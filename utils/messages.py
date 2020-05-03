@@ -39,7 +39,8 @@ OVEN_CONTROLLER_MSGS = {
     "timeout" : "Timer scattato!!!",
     "set_point" : "Nuova temperatura impostata.",
     "function_disabled" : "Funzione disabilitata a bruciatore acceso.",
-    "burner_off_upper" : "Forzatura spegnimento bruciatore, temperatura già raggiunta."
+    "burner_off_upper" : "Forzatura spegnimento bruciatore, temperatura già raggiunta.",
+    "resistance_off_upper" : "Forzatura spegnimento resistenza, temperatura già raggiunta."
     }
 
 CHARTS_CONTROLLER_MSGS = {

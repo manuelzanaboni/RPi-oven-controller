@@ -175,7 +175,7 @@ class OvenController(object):
                 self.notify(MSG["burner_off_upper"])
                 self.__burner = False
                 self.__burnerController.setUpperCheckState(False)
-                self.__burnerController.weirdPause()
+                self.__burnerController.upperPause()
                 return None
             
     def toggleBurnerValve(self):
@@ -274,12 +274,25 @@ class OvenController(object):
             #self.notify(MSG["light_off"])
             
     def toggleResistance(self):
-        self.__resistance = not self.__resistance
-
-        if self.__resistance:
-            self.__resistanceController.resume()
+        self.__resistance = not self.__resistance            
+            
+        if self.thermostatCalling():
+            if self.__resistance:
+                """ Turn Resistance ON """
+                self.__resistanceController.resume()
+                return True
+            else:
+                """ Turn Resistance OFF """
+                self.__resistanceController.pause()
+                return False
         else:
-            self.__resistanceController.pause()
+            if self.__resistance:
+                """ Stop Resistance cicle """
+                self.notify(MSG["resistance_off_upper"])
+                self.__resistance = False
+                self.__resistanceController.setUpperCheckState(False)
+                self.__resistanceController.upperPause()
+                return None
             
     def toggleVacuum(self):
         self.__vacuum = not self.__vacuum
@@ -303,10 +316,10 @@ class OvenController(object):
             self.__burner = state
             self.ui.manageBurnerSignal.emit(state)
         
-    def manageResistanceButton(self, state):
+    def manageResistanceLabel(self, state):
         if state is not None:
             self.__resistance = state
-            self.ui.resistanceButton.setChecked(state)
+            self.ui.manageResistanceSignal.emit(state)
         
     def isBurnerButtonEnabled(self):
         return self.ui.burnerButton.isEnabled()

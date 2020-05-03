@@ -596,10 +596,10 @@
      <widget class="QPushButton" name="burnerButton">
       <property name="geometry">
        <rect>
-        <x>410</x>
-        <y>440</y>
-        <width>111</width>
-        <height>101</height>
+        <x>430</x>
+        <y>490</y>
+        <width>71</width>
+        <height>70</height>
        </rect>
       </property>
       <property name="focusPolicy">
@@ -615,8 +615,8 @@
       </property>
       <property name="iconSize">
        <size>
-        <width>120</width>
-        <height>120</height>
+        <width>70</width>
+        <height>70</height>
        </size>
       </property>
       <property name="autoDefault">
@@ -801,9 +801,9 @@
      <widget class="QPushButton" name="resistanceButton">
       <property name="geometry">
        <rect>
-        <x>680</x>
-        <y>330</y>
-        <width>76</width>
+        <x>430</x>
+        <y>410</y>
+        <width>71</width>
         <height>70</height>
        </rect>
       </property>
@@ -815,17 +815,16 @@
       </property>
       <property name="icon">
        <iconset resource="resources.qrc">
-        <normaloff>:/resources/resistanceOff.png</normaloff>
-        <normalon>:/resources/resistanceOn.png</normalon>:/resources/resistanceOff.png</iconset>
+        <normaloff>:/resources/resistance.png</normaloff>:/resources/resistance.png</iconset>
       </property>
       <property name="iconSize">
        <size>
-        <width>56</width>
-        <height>56</height>
+        <width>70</width>
+        <height>70</height>
        </size>
       </property>
       <property name="checkable">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="autoDefault">
        <bool>false</bool>
@@ -879,8 +878,8 @@
      <widget class="QPushButton" name="vacuumButton">
       <property name="geometry">
        <rect>
-        <x>770</x>
-        <y>230</y>
+        <x>680</x>
+        <y>330</y>
         <width>76</width>
         <height>70</height>
        </rect>
@@ -898,8 +897,8 @@
       </property>
       <property name="iconSize">
        <size>
-        <width>64</width>
-        <height>64</height>
+        <width>57</width>
+        <height>57</height>
        </size>
       </property>
       <property name="checkable">
@@ -1537,6 +1536,19 @@
       </property>
       <property name="flat">
        <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="resistanceLabel">
+      <property name="geometry">
+       <rect>
+        <x>830</x>
+        <y>290</y>
+        <width>54</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
       </property>
      </widget>
     </widget>

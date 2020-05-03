@@ -27,25 +27,25 @@ class BurnerController(Thread):
             self.upperCheckState = state
         
     def resume(self):
+        self.paused = False
+        
         with self.state:
-            self.paused = False
             self.state.notify() # Execute self if waiting.
             
     def pause(self):
         if not self.paused:
             self.turnBurnerOff()
-            with self.state:
-                self.paused = True # Pause self.
+            self.paused = True # Pause self.
             
-    def weirdPause(self):
+    def upperPause(self):
         """
         This method is used to manage user's input to turn burner OFF,
         when this thread is waiting (Condition) in upperCheck() method.
         Basically, this reset wait timeout.
-        Kinda weird method...i know.
         """
-        self.resume()
-        self.pause()
+        self.paused = True
+        with self.state:
+            self.state.notify()
         
     def kill(self):
         """

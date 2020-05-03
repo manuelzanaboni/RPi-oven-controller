@@ -15,6 +15,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     notifySignal = pyqtSignal(str, bool, int)
     manageBurnerSignal = pyqtSignal(bool)
     manageValveSignal = pyqtSignal(bool)
+    manageResistanceSignal = pyqtSignal(bool)
     
     def __init__(self, *args, **kwargs):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
@@ -30,18 +31,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.fanMovie = QtGui.QMovie(":/resources/fan.gif", parent = self)
         
         """  Burner movie management """
-        self.burnerLabel.setGeometry(QtCore.QRect(880, 230, 150, 175))
+        self.burnerLabel.setGeometry(QtCore.QRect(850, 230, 150, 175))
         self.fireMovie = QtGui.QMovie(":/resources/fire.gif", parent = self)
         self.fireMovie.setScaledSize(QtCore.QSize(150, 175))
         self.burnerLabel.setMovie(self.fireMovie)
         self.burnerLabel.hide()
         
         """  Burner valve movie management """
-        self.burnerValveLabel.setGeometry(QtCore.QRect(830, 305, 75, 100))
+        self.burnerValveLabel.setGeometry(QtCore.QRect(800, 305, 75, 100))
         self.valveFireMovie = QtGui.QMovie(":/resources/fire.gif", parent = self)
         self.valveFireMovie.setScaledSize(QtCore.QSize(75, 100))
         self.burnerValveLabel.setMovie(self.valveFireMovie)
         self.burnerValveLabel.hide()
+        
+        """  Resistance movie management """
+        self.resistanceLabel.setGeometry(QtCore.QRect(800, 220, 70, 90))
+        self.resistanceMovie = QtGui.QMovie(":/resources/electricity.gif", parent = self)
+        self.resistanceMovie.setScaledSize(QtCore.QSize(70, 90))
+        self.resistanceLabel.setMovie(self.resistanceMovie)
+        self.resistanceLabel.hide()
         
         """ Settings fields management """
         self.settingsFieldToEdit = None # holds reference of the focused field
@@ -86,6 +94,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def manageValveSlot(self, state):
         self.manageValveLabel(state)
         
+    @pyqtSlot(bool)
+    def manageResistanceSlot(self, state):
+        self.manageResistanceLabel(state)
+        
     def initializeSettingsFields(self):
         self.pressionSwitch = Switch(thumb_radius=11, track_radius=15, parent = self)
         self.pressionSwitch.setChecked(True)
@@ -124,6 +136,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.notifySignal.connect(self.notifySlot)
         self.manageBurnerSignal.connect(self.manageBurnerSlot)
         self.manageValveSignal.connect(self.manageValveSlot)
+        self.manageResistanceSignal.connect(self.manageResistanceSlot)
         
         """ Manage buttons' action """
         self.burnerButton.clicked.connect(self.toggleBurner)
@@ -148,7 +161,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         self.rotisserieButton.clicked.connect(self.controller.toggleRotisserie)
         
-        self.resistanceButton.clicked.connect(lambda state: self.toggleResistance(state))
+        self.resistanceButton.clicked.connect(self.toggleResistance)
 
         self.vacuumButton.clicked.connect(self.controller.toggleVacuum)
 
@@ -245,11 +258,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             else:
                 self.fanMovie.start()
                 
-    def toggleResistance(self, state):
-        if self.controller.thermostatCalling():
-            self.controller.toggleResistance()
+    def toggleResistance(self):
+        state = self.controller.toggleResistance()
+        if state is not None:
+            self.manageResistanceLabel(state)
+            
+    def manageResistanceLabel(self, state):
+        if state:
+            self.resistanceMovie.start()
+            self.resistanceLabel.show()
         else:
-            self.resistanceButton.setChecked(not state)
+            self.resistanceMovie.stop()
+            self.resistanceLabel.hide()
         
     def toggleAlexa(self):  # TODO future feature
         pass

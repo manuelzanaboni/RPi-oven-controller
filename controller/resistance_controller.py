@@ -7,7 +7,6 @@ import RPi.GPIO as GPIO
 
 import utils.default_gpio as PIN
 from utils.messages import RESISTANCE_CONTROLLER_MSGS as MSG
-from .upper_checker_resistance import UpperCheckerResistance
 
 SLEEP_TIME = 3 # (seconds) overall sleep time
 
@@ -15,23 +14,37 @@ class ResistanceController(Thread):
     def __init__(self, controller):
         super(ResistanceController, self).__init__()
         self.controller = controller
-        self.paused = True # Start out paused.
-        self.state = Condition()        
+        self.paused = True # Start out paused.     
         self.stop = False
         
-        self.upperChecker = UpperCheckerResistance(controller = self.controller, resistance_controller = self)
-        self.upperChecker.start()
+        self.state = Condition()   
         
+        self.upperCheckState = False
+        
+    def setUpperCheckState(self, state):
+        if state is not None:
+            self.upperCheckState = state
+            
     def resume(self):
-        with self.state:
-            self.paused = False
+        self.paused = False
+        
+        with self.state:  
             self.state.notify() # Execute self if waiting.
             
     def pause(self):
         if not self.paused:
             self.turnResistanceOff()
-            with self.state:
-                self.paused = True # Pause self.
+            self.paused = True # Pause self.
+            
+    def upperPause(self):
+        """
+        This method is used to manage user's input to turn burner OFF,
+        when this thread is waiting (Condition) in upperCheck() method.
+        Basically, this reset wait timeout.
+        """
+        self.paused = True
+        with self.state:
+            self.state.notify()
             
     def kill(self):
         """
@@ -54,51 +67,64 @@ class ResistanceController(Thread):
         """
         Atomic resistance start-up
         """
-        GPIO.output(PIN.RELAY10_RESISTANCE, GPIO.LOW)
+        if not self.getResistanceState():
+            GPIO.output(PIN.RELAY10_RESISTANCE, GPIO.LOW)
         
     def turnResistanceOff(self):
         """
         Atomic resistance shut-down
         """
-        GPIO.output(PIN.RELAY10_RESISTANCE, GPIO.HIGH)
+        if self.getResistanceState():
+            GPIO.output(PIN.RELAY10_RESISTANCE, GPIO.HIGH)
         
     def run(self):
-        while not self.stop:                    
+        while not self.stop:
+            
             with self.state:
                 if self.paused:
                     self.state.wait()  # Block execution until notified.
+                    
+            if not self.upperCheckState:
+                self.mainCicle()    # Burner main working cicle
+            else:
+                self.upperCheck()   # Check whether burner should be turned ON
+        
+    def mainCicle(self):
+        if not self.stop: # skip execution if kill() has been called
             
-            if not self.stop: # skip execution if kill() has been called
-                
-                if self.controller.thermostatCalling():
-                    """
-                    Here thermostat is triggered, thus resistance should be ON.
-                    """
-                    if not self.getResistanceState():
-                        """
-                        Resistance is currently OFF --> startup.
-                        """
-                        self.turnResistanceOn()                        
-                else:
-                    """
-                    Here thermostat is not triggered, thus resistance should be OFF.
-                    """                    
-                    if self.getResistanceState():
-                        self.pause()
-                        self.controller.manageResistanceButton(False)
-                        self.controller.notify(MSG["temp_reached"])
-                        
-                        """ Start checking for upper tempererature """
-                        self.upperChecker.resume()
-            
-            if not self.paused:
+            if self.controller.thermostatCalling():
                 """
-                Sleep only if thread (self) is not paused.
+                Here thermostat is triggered, thus resistance should be ON.
                 """
-                time.sleep(SLEEP_TIME)
-                
-             
-        if self.upperChecker.isAlive():
-            self.upperChecker.kill()
+                if not self.getResistanceState():
+                    """
+                    Resistance is currently OFF --> startup.
+                    """
+                    self.turnResistanceOn()                        
+            else:
+                """
+                Here thermostat is not triggered, thus resistance should be OFF.
+                """                    
+                if self.getResistanceState():
+                    self.turnResistanceOff()
+                    self.controller.manageResistanceLabel(False)
+                    self.controller.notify(MSG["temp_reached"])
+                    
+                    """ Start checking for upper tempererature, proceed with self.upperCheck() """
+                    self.upperCheckState = True
+        
+        if not self.paused:
+            """
+            Sleep only if thread (self) is not paused.
+            """
+            time.sleep(SLEEP_TIME)
             
-        self.upperChecker.join()
+    def upperCheck(self):        
+        if self.controller.thermostatCalling():
+            self.upperCheckState = False
+            self.controller.manageResistanceLabel(True)
+            
+        """ Here Condition has been used to enable 'wake up on wait' """
+        with self.state:
+            self.state.wait(self.controller.config["inputUpperCheckerTime"])
+
