@@ -42,17 +42,17 @@ class SensReader(Thread):
 
     def calibratePressionSensors(self):
         self.controller.notify(MSG["calibration"])
-        sum = self.aggregateReads(self.pressionSensor, 10)
-        self.__avgPression = sum // 10
+        sum = self.aggregateReads(self.pressionSensor, 3)
+        self.__avgPression = sum // 3
 
-        sum = self.aggregateReads(self.gasSensor, 10)
-        self.__avgGas = sum // 10
+        sum = self.aggregateReads(self.gasSensor, 3)
+        self.__avgGas = sum // 3
     
     def aggregateReads(self, sensor, num):
         sum = 0
         for i in range(num):
             sum += sensor.read_pressure()
-            time.sleep(0.01)
+            time.sleep(0.03)
             
         return sum
         
@@ -80,10 +80,12 @@ class SensReader(Thread):
             pression2 = self.gasSensor.read_pressure()
             delta2 = pression2 - mean2
             """
-            pression1 = self.aggregateReads(self.pressionSensor, 10) // 10
+#             pression1 = self.aggregateReads(self.pressionSensor, 10) // 10
+            pression1 = self.pressionSensor.read_pressure()
             delta1 = pression1 - self.__avgPression
             
-            pression2 = self.aggregateReads(self.gasSensor, 10) // 10
+#             pression2 = self.aggregateReads(self.gasSensor, 10) // 10
+            pression2 = self.gasSensor.read_pressure()
             delta2 = pression2 - self.__avgGas
             
             """ display data """

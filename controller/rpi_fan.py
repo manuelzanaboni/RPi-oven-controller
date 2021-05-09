@@ -6,6 +6,8 @@ from threading import Thread
 import RPi.GPIO as GPIO
 import subprocess
 
+from datetime import datetime
+
 import utils.default_gpio as PIN
 
 ON_THRESHOLD = 45  # (degrees Celsius) Fan kicks on at this temperature.
@@ -39,7 +41,10 @@ class FanController(Thread):
     def run(self):
         while not self.stop:
             temp = self.getTemp()
-            #print("Fan controller: temp " + str(temp))
+            t = datetime.now().strftime("%H:%M:%S")
+            
+            print(t, " T: ", str(temp))
+            
             pinState = GPIO.input(PIN.RELAY8_RPI_FAN)
 
             if temp > ON_THRESHOLD and pinState:

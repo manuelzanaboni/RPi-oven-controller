@@ -12,6 +12,8 @@ from .resistance_controller import ResistanceController
 from .sens_reader import SensReader
 from .rpi_fan import FanController
 from .internal_opening_controller import InternalOpeningController
+from utils.MysqlConnector import MysqlConnector
+from utils import iwlist
 
 AUDIO_PATH = 'resources/audio.mp3' # where to find audio file to be played
 UPPER_SAFETY_PRESSION_THRESHOLD = 500 # (Pa) delta pression threshold. if greater, burner must turn off.
@@ -20,7 +22,10 @@ class OvenController(object):
     def __init__(self, ui, config):
         self.ui = ui
         self.config = config
-        
+        self.mysqlConnector = MysqlConnector()
+        # create table if not exists
+        self.mysqlConnector.create_table()
+ 
         self.__ovenTemp = 0 # holds oven internal temperature
         self.__floorTemp = 0 # holds oven's floor temperature
         self.__pufferTemp = 0 # holds puffer temperature (water)
@@ -73,6 +78,12 @@ class OvenController(object):
         self.__threads.append(self.__fanController)
         self.__fanController.start()
 
+    def getBurner(self):
+        return self.__burner
+    
+    def getResistance(self):
+        return self.__resistance
+
     def getOvenTemp(self):
         return self.__ovenTemp
     
@@ -92,6 +103,13 @@ class OvenController(object):
         return self.ui.horizontalSlider.minimum()
 
     def setData(self, ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression, deltaGas):
+        # insert data into MySql server
+        data = (ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression, deltaGas,
+                self.getSetPoint(), int(self.getBurner()), int(self.getResistance()), self.wifi_signal())
+        print(data)
+        self.mysqlConnector.insert_data(data)
+        
+        # display
         if ovenTemp is not None and not isnan(ovenTemp):
             self.__ovenTemp = ovenTemp
             self.ui.ovenLCD.display(self.__ovenTemp)
@@ -342,6 +360,13 @@ class OvenController(object):
             
     def calibratePressionSensors(self):
         self.__sensReader.setReCalibrate(True)
+    
+    def wifi_signal(self):
+        content = iwlist.scan(interface='wlan0')
+        cells = iwlist.parse(content)
+        for cell in cells:
+            if cell["essid"] == "TIM-23405146":
+                return int(cell["signal_level_dBm"])
 
     def notify(self, message, time = 3000):
         self.ui.notifySignal.emit(message, False, time)
