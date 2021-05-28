@@ -4,6 +4,7 @@
 import RPi.GPIO as GPIO
 import subprocess
 from math import isnan
+import json
 
 import utils.default_gpio as PIN
 from utils.messages import OVEN_CONTROLLER_MSGS as MSG
@@ -12,7 +13,9 @@ from .resistance_controller import ResistanceController
 from .sens_reader import SensReader
 from .rpi_fan import FanController
 from .internal_opening_controller import InternalOpeningController
-from utils.MysqlConnector import MysqlConnector
+# from utils.MysqlConnector import MysqlConnector
+from utils.MQTTConnector import MQTTConnector
+from utils.InfluxdbConnector import InfluxdbConnector
 from utils import iwlist
 
 AUDIO_PATH = 'resources/audio.mp3' # where to find audio file to be played
@@ -22,10 +25,13 @@ class OvenController(object):
     def __init__(self, ui, config):
         self.ui = ui
         self.config = config
-        self.mysqlConnector = MysqlConnector()
+#         self.mysqlConnector = MysqlConnector()
         # create table if not exists
-        self.mysqlConnector.create_table()
- 
+#         self.mysqlConnector.create_table()
+
+        self.MQTTConnector = MQTTConnector(controller=self)
+        self.InfluxdbConnector = InfluxdbConnector()
+        
         self.__ovenTemp = 0 # holds oven internal temperature
         self.__floorTemp = 0 # holds oven's floor temperature
         self.__pufferTemp = 0 # holds puffer temperature (water)
@@ -102,12 +108,59 @@ class OvenController(object):
     def getLowerThermostatBound(self):
         return self.ui.horizontalSlider.minimum()
 
+    def mqtt_publish_sensors_data(self, ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression, deltaGas):
+        data = {
+            "temps": {
+                "t1": ovenTemp,
+                "t2": floorTemp,
+                "t3": pufferTemp,
+                "t4": fumesTemp
+            },
+            "press": {
+                "p1": deltaPression,
+                "p2": deltaGas
+            }
+        }
+        self.MQTTConnector.publish("sensors", json.dumps(data))
+    
+    def request_controller_to_publish_state(self):
+        data = {
+            "setPoint": self.getSetPoint(),
+            "burner": self.getBurner(),
+            "resistance": self.getResistance(),
+            "wifi": self.wifi_signal()
+        }
+        self.MQTTConnector.publish("state", json.dumps(data), qos=1, retain=True)
+        
+    def handle_mqtt_message_control(self, message):
+        msg = json.loads(message)
+        if "burner" in msg.keys():
+            res = self.toggleBurner()
+            self.manageBurnerButtonAndLabel(res)
+        if "resistance" in msg.keys():
+            res = self.toggleResistance()
+            self.manageResistanceLabel(res)
+        if "thermostat" in msg.keys():
+            self.ui.setThermostatTempExternal(msg["thermostat"])
+        
+    def config_influxdb(self, config):
+        self.InfluxdbConnector.set_config(config)
+        
     def setData(self, ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression, deltaGas):
+        """
         # insert data into MySql server
+        
         data = (ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression, deltaGas,
                 self.getSetPoint(), int(self.getBurner()), int(self.getResistance()), self.wifi_signal())
-        print(data)
+        
         self.mysqlConnector.insert_data(data)
+        """
+        
+        # insert data into InfluxDB server
+        
+        data = (ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression, deltaGas)
+        self.InfluxdbConnector.write_data(data)
+        self.mqtt_publish_sensors_data(ovenTemp, floorTemp, pufferTemp, fumesTemp, deltaPression, deltaGas)
         
         # display
         if ovenTemp is not None and not isnan(ovenTemp):
@@ -182,11 +235,12 @@ class OvenController(object):
             if self.__burner:
                 """ Turn Burner ON """
                 self.__burnerController.resume()
-                return True
+                ret = True
             else:
                 """ Turn burner OFF """
                 self.__burnerController.pause()
-                return False
+                self.request_controller_to_publish_state()
+                ret = False
         else:
             if self.__burner:
                 """ Stop burner cicle """
@@ -194,7 +248,11 @@ class OvenController(object):
                 self.__burner = False
                 self.__burnerController.setUpperCheckState(False)
                 self.__burnerController.upperPause()
-                return None
+                ret = None
+            
+        # MQTT publish state
+        self.request_controller_to_publish_state()
+        return ret
             
     def toggleBurnerValve(self):
         self.__burnerValve = not self.__burnerValve
@@ -298,11 +356,11 @@ class OvenController(object):
             if self.__resistance:
                 """ Turn Resistance ON """
                 self.__resistanceController.resume()
-                return True
+                ret = True
             else:
                 """ Turn Resistance OFF """
                 self.__resistanceController.pause()
-                return False
+                ret = False
         else:
             if self.__resistance:
                 """ Stop Resistance cicle """
@@ -310,7 +368,11 @@ class OvenController(object):
                 self.__resistance = False
                 self.__resistanceController.setUpperCheckState(False)
                 self.__resistanceController.upperPause()
-                return None
+                ret = None
+            
+        # MQTT publish state
+        self.request_controller_to_publish_state()
+        return ret
             
     def toggleVacuum(self):
         self.__vacuum = not self.__vacuum
@@ -357,6 +419,7 @@ class OvenController(object):
         if value is not None:
             self.__setPoint = value
             self.notify(MSG["set_point"])
+            self.request_controller_to_publish_state()
             
     def calibratePressionSensors(self):
         self.__sensReader.setReCalibrate(True)

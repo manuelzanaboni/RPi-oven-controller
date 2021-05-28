@@ -278,6 +278,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         value = self.thermostatLCD.value()
         self.controller.setThermostatValue(value)
         
+    def setThermostatTempExternal(self, value):
+        self.thermostatLCD.display(value)
+        self.horizontalSlider.setValue(value)
+        self.controller.setThermostatValue(value)
+        
     def incrementThermostat(self):
         value = self.horizontalSlider.value()
         

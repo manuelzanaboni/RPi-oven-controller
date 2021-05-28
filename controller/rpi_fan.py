@@ -43,7 +43,7 @@ class FanController(Thread):
             temp = self.getTemp()
             t = datetime.now().strftime("%H:%M:%S")
             
-            print(t, " T: ", str(temp))
+#             print(t, " T: ", str(temp))
             
             pinState = GPIO.input(PIN.RELAY8_RPI_FAN)
 
